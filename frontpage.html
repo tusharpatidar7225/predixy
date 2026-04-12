@@ -1210,7 +1210,8 @@
     updateMarketStatus();
     fetchPrices();
     loadWatchlistUI();
-
+    loadCurrentUsername();
+    
     setInterval(fetchPrices, 30000);
     setInterval(updateMarketStatus, 60000);
   });
