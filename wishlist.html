@@ -252,6 +252,80 @@
         font-size:26px;
       }
     }
+    @media (max-width: 768px){
+  .topbar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .back-btn,
+  .count-badge{
+    width: 100%;
+    text-align: center;
+  }
+
+  .grid{
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px){
+  body{
+    padding: 10px;
+  }
+
+  .hero{
+    padding: 14px;
+    border-radius: 18px;
+  }
+
+  .hero h1{
+    font-size: 22px;
+  }
+
+  .hero p{
+    font-size: 13px;
+  }
+
+  .card{
+    padding: 16px;
+    border-radius: 18px;
+    min-height: auto;
+  }
+
+  .remove-btn{
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+
+  .company h4{
+    font-size: 18px;
+    padding-right: 28px;
+  }
+
+  .pill{
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+
+  .price-main{
+    font-size: 24px;
+  }
+
+  .price-change{
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+
+  .empty-state{
+    padding: 22px 14px;
+    border-radius: 18px;
+    font-size: 13px;
+  }
+}
   </style>
 </head>
 <body>
