@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-    <meta name="google-site-verification" content="52LL5GIZTKYsB5pj4x-SW5zgAP3VZcDfVkT8dmSMIS4" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="google-site-verification" content="52LL5GIZTKYsB5pj4x-SW5zgAP3VZcDfVkT8dmSMIS4" />
 <title>Login & Signup</title>
 
 <style>
@@ -38,9 +39,9 @@ body{
 /* ===== MAIN GLASS CONTAINER ===== */
 .container{
     position:relative;
-    z-index:2;   /* Above particles */
-    width:380px;
-    padding:40px;
+    z-index:2;
+    width:min(380px, 92vw);
+    padding:40px 24px;
     border-radius:20px;
     text-align:center;
     background:rgba(255,255,255,0.08);
@@ -156,6 +157,38 @@ body{
     text-align:left;
     margin-top:5px;
     display:none;
+}
+@media (max-width: 480px){
+    body{
+        padding:16px;
+    }
+
+    .container{
+        width:100%;
+        padding:28px 16px;
+        border-radius:16px;
+    }
+
+    .container h2{
+        font-size:22px;
+        margin-bottom:18px;
+    }
+
+    .input-box,
+    .btn{
+        padding:11px;
+        font-size:14px;
+    }
+
+    .link{
+        font-size:13px;
+    }
+
+    #passwordMessage,
+    .input-error,
+    .form-message{
+        font-size:12px;
+    }
 }
 
 </style>
