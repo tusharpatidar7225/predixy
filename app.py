@@ -113,13 +113,16 @@ def login():
     with sqlite3.connect(DATABASE) as conn:
         c = conn.cursor()
         c.execute(
-            "SELECT id FROM users WHERE email=? AND password=?",
+            "SELECT id, username FROM users WHERE email=? AND password=?",
             (data["email"], data["password"])
         )
         user = c.fetchone()
 
     if user:
-        return jsonify({"user_id": user[0]}), 200
+        return jsonify({
+            "user_id": user[0],
+            "username": user[1]
+        }), 200
     else:
         return jsonify({"message": "Invalid email or password"}), 401
 
