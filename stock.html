@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predixy Stock Details</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg-soft:#0b1728;
+      --panel:#0f1b2d;
+      --panel-2:#12233a;
+      --line:rgba(148,163,184,0.16);
+      --text:#e5eefc;
+      --muted:#91a1bb;
+      --green:#22c55e;
+      --green-soft:rgba(34,197,94,0.14);
+      --blue:#38bdf8;
+      --red:#ef4444;
+      --shadow:0 18px 50px rgba(0,0,0,0.34);
+      --radius:24px;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:"Inter","Segoe UI",system-ui,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at -5% -10%, rgba(56,189,248,0.12), transparent 55%),
+        radial-gradient(800px 420px at 105% 0%, rgba(34,197,94,0.10), transparent 52%),
+        linear-gradient(180deg, #07111f 0%, #08101d 100%);
+      padding:24px;
+    }
+
+    .page{
+      max-width:1400px;
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .back-btn{
+      border:none;
+      outline:none;
+      cursor:pointer;
+      padding:12px 18px;
+      border-radius:16px;
+      color:var(--text);
+      font-weight:700;
+      background:linear-gradient(180deg, rgba(18,35,58,0.9), rgba(9,18,31,0.9));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      transition:all .25s ease;
+    }
+
+    .back-btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(56,189,248,0.24);
+    }
+
+    .market-chip{
+      padding:10px 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(15,23,42,0.74);
+      color:#cde7ff;
+      font-size:13px;
+      font-weight:700;
+      box-shadow:var(--shadow);
+    }
+
+    .hero{
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:24px;
+      background:
+        radial-gradient(420px 180px at 8% 0%, rgba(34,197,94,0.12), transparent 60%),
+        radial-gradient(320px 180px at 85% 0%, rgba(56,189,248,0.09), transparent 60%),
+        linear-gradient(180deg, rgba(18,35,58,0.82), rgba(8,16,29,0.90));
+      box-shadow:var(--shadow);
+      margin-bottom:20px;
+    }
+
+    .hero-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:18px;
+      flex-wrap:wrap;
+      margin-bottom:22px;
+    }
+
+    .stock-meta h1{
+      font-size:34px;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      margin-bottom:10px;
+    }
+
+    .ticker-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin-bottom:14px;
+    }
+
+    .pill{
+      font-size:12px;
+      color:#c7d5ea;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+    }
+
+    .ticker{
+      color:#7dd3fc;
+      background:rgba(56,189,248,0.10);
+      border-color:rgba(56,189,248,0.20);
+    }
+
+    .live-price{
+      font-size:42px;
+      font-weight:800;
+      line-height:1.1;
+      color:#f8fbff;
+      letter-spacing:-0.03em;
+      margin-bottom:10px;
+    }
+
+    .price-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      background:rgba(255,255,255,0.04);
+    }
+
+    .price-badge.up{
+      color:var(--green);
+      background:rgba(34,197,94,0.10);
+    }
+
+    .price-badge.down{
+      color:#f87171;
+      background:rgba(239,68,68,0.10);
+    }
+
+    .hero-side{
+      min-width:220px;
+      display:grid;
+      gap:12px;
+      flex:1;
+      max-width:320px;
+    }
+
+    .mini-card{
+      padding:16px 18px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(15,27,45,0.92), rgba(10,19,33,0.92));
+    }
+
+    .mini-label{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:#7d90aa;
+      margin-bottom:8px;
+    }
+
+    .mini-value{
+      font-size:22px;
+      font-weight:800;
+    }
+
+    .chart-card{
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:20px;
+      background:linear-gradient(180deg, rgba(16,28,46,0.95), rgba(9,16,29,0.98));
+      box-shadow:var(--shadow);
+      margin-bottom:18px;
+    }
+
+    .chart-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:18px;
+      flex-wrap:wrap;
+    }
+
+    .chart-head h3{
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .chart-head p{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .chart-box{
+      height:480px;
+      width:100%;
+      border-radius:22px;
+      padding:14px;
+      background:
+        linear-gradient(180deg, rgba(2,6,23,0.94), rgba(3,10,24,0.96));
+      border:1px solid rgba(255,255,255,0.04);
+      overflow:hidden;
+    }
+
+    canvas{
+      width:100% !important;
+      height:100% !important;
+      display:block;
+    }
+
+    .info-grid{
+      display:grid;
+      grid-template-columns:repeat(5, minmax(160px,1fr));
+      gap:16px;
+    }
+
+    .info-card{
+      padding:18px;
+      border-radius:22px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(15,27,45,0.92), rgba(10,19,33,0.92));
+      box-shadow:var(--shadow);
+    }
+
+    .info-label{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:#7d90aa;
+      margin-bottom:10px;
+    }
+
+    .info-value{
+      font-size:24px;
+      font-weight:800;
+      color:#f8fbff;
+      letter-spacing:-0.02em;
+    }
+
+    .info-sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .watchlist-btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:12px 20px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+      color:#9aa9c2;
+      font-size:15px;
+      font-weight:700;
+      cursor:pointer;
+      transition:all .25s ease;
+      user-select:none;
+    }
+
+    .watchlist-btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(239,68,68,0.22);
+      color:#ffd6de;
+      background:rgba(239,68,68,0.10);
+    }
+
+    .watchlist-btn.saved{
+      color:#ff4d6d;
+      background:rgba(239,68,68,0.12);
+      border-color:rgba(239,68,68,0.28);
+    }
+
+    .watchlist-btn.saved:hover{
+      background:rgba(239,68,68,0.06);
+      color:#9aa9c2;
+      border-color:rgba(255,255,255,0.08);
+    }
+
+    @media (max-width: 1100px){
+      .info-grid{
+        grid-template-columns:repeat(3, minmax(160px,1fr));
+      }
+    }
+
+    @media (max-width: 768px){
+      body{
+        padding:14px;
+      }
+
+      .hero, .chart-card{
+        padding:18px;
+        border-radius:22px;
+      }
+
+      .stock-meta h1{
+        font-size:28px;
+      }
+
+      .live-price{
+        font-size:34px;
+      }
+
+      .chart-box{
+        height:360px;
+      }
+
+      .info-grid{
+        grid-template-columns:repeat(2, minmax(140px,1fr));
+      }
+    }
+
+    @media (max-width: 520px){
+      .info-grid{
+        grid-template-columns:1fr;
+      }
+
+      .chart-box{
+        height:300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+
+    <div class="topbar">
+      <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+        <div id="marketStatus" class="market-chip">Checking market...</div>
+        <button class="watchlist-btn" id="watchlistBtn" onclick="toggleWatchlist()">
+          <span id="heartIcon">❤</span>
+          <span id="watchlistLabel">Add to Watchlist</span>
+        </button>
+      </div>
+    </div>
+
+    <section class="hero">
+      <div class="hero-head">
+        <div class="stock-meta">
+          <h1 id="name">Stock Name</h1>
+
+          <div class="ticker-row">
+            <span class="pill">Detailed View</span>
+            <span class="pill ticker" id="tickerText">--</span>
+          </div>
+
+          <div class="live-price" id="price">Loading...</div>
+          <div id="priceChangeBadge" class="price-badge">Fetching live movement...</div>
+        </div>
+
+        <div class="hero-side">
+          <div class="mini-card">
+            <div class="mini-label">Market Session</div>
+            <div class="mini-value" id="sessionText">Live Tracking</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="chart-card">
+      <div class="chart-head">
+        <div>
+          <h3>Intraday Price Movement</h3>
+          <p>Professional live-style chart aligned with your dashboard theme.</p>
+        </div>
+      </div>
+
+      <div class="chart-box">
+        <canvas id="chart"></canvas>
+      </div>
+    </section>
+
+    <section class="info-grid">
+      <div class="info-card">
+        <div class="info-label">Open</div>
+        <div class="info-value" id="open">--</div>
+        <div class="info-sub">Opening price</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">High</div>
+        <div class="info-value" id="high">--</div>
+        <div class="info-sub">Day high</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Low</div>
+        <div class="info-value" id="low">--</div>
+        <div class="info-sub">Day low</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Previous Close</div>
+        <div class="info-value" id="prev">--</div>
+        <div class="info-sub">Previous session</div>
+      </div>
+
+      <div class="info-card">
+        <div class="info-label">Volume</div>
+        <div class="info-value" id="volume">--</div>
+        <div class="info-sub">Traded shares</div>
+      </div>
+    </section>
+
+  </div>
+
+  <script>
+  const params = new URLSearchParams(window.location.search);
+  const symbol = params.get("s") || window.location.pathname.split("/").pop();
+  const stockName = params.get("name") || symbol;
+  const currency = symbol.includes(".NS") ? "₹" : "$";
+
+  let stockChart = null;
+
+  function goBack(){
+    window.location.href = "/dashboard";
+  }
+
+  function updateMarketStatus(){
+    const badge = document.getElementById("marketStatus");
+    const sessionText = document.getElementById("sessionText");
+
+    const istTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    const day = istTime.getDay();
+    const hrs = istTime.getHours();
+    const mins = istTime.getMinutes();
+
+    const marketOpen =
+      day !== 0 && day !== 6 &&
+      ((hrs > 9 || (hrs === 9 && mins >= 15)) &&
+      (hrs < 15 || (hrs === 15 && mins <= 30)));
+
+    if(marketOpen){
+      badge.innerText = "🟢 Market Open";
+      sessionText.innerText = "Live Tracking";
+    }else{
+      badge.innerText = "🔴 Market Closed";
+      sessionText.innerText = "After Market";
+    }
+  }
+
+  function formatLivePrice(data){
+    const isUp = Number(data.change) >= 0;
+    const priceEl = document.getElementById("price");
+    const badgeEl = document.getElementById("priceChangeBadge");
+
+    priceEl.innerText = `${currency}${Number(data.price).toFixed(2)}`;
+    badgeEl.className = `price-badge ${isUp ? "up" : "down"}`;
+    badgeEl.innerText = `${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)`;
+  }
+
+  function loadPrice(){
+    document.getElementById("name").innerText = stockName;
+    document.getElementById("tickerText").innerText = symbol;
+
+    fetch(`/get_price/${encodeURIComponent(symbol)}`)
+      .then(res => res.json())
+      .then(data => {
+        if(data.error) return;
+        formatLivePrice(data);
+      })
+      .catch(err => console.log("Price fetch error:", err));
+  }
+
+  function loadGraph(){
+    fetch(`/get_graph/${encodeURIComponent(symbol)}`)
+      .then(res => res.json())
+      .then(d => {
+        if(d.error) return;
+
+        document.getElementById("open").innerText = d.open != null ? `${currency}${Number(d.open).toFixed(2)}` : "--";
+        document.getElementById("high").innerText = d.high != null ? `${currency}${Number(d.high).toFixed(2)}` : "--";
+        document.getElementById("low").innerText = d.low != null ? `${currency}${Number(d.low).toFixed(2)}` : "--";
+        document.getElementById("prev").innerText = d.previous_close != null ? `${currency}${Number(d.previous_close).toFixed(2)}` : "--";
+        document.getElementById("volume").innerText = d.volume != null ? Number(d.volume).toLocaleString() : "--";
+
+        const ctx = document.getElementById("chart").getContext("2d");
+
+        if(stockChart){
+          stockChart.destroy();
+        }
+
+        const gradient = ctx.createLinearGradient(0, 0, 0, 420);
+        gradient.addColorStop(0, "rgba(34,197,94,0.32)");
+        gradient.addColorStop(1, "rgba(34,197,94,0.02)");
+
+        stockChart = new Chart(ctx, {
+          type: "line",
+          data: {
+            labels: d.times,
+            datasets: [{
+              data: d.prices,
+              borderColor: "#22c55e",
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.38,
+              borderWidth: 3,
+              pointRadius: function(context){
+                const index = context.dataIndex;
+                const last = d.prices.length - 1;
+                return index === last ? 5 : 0;
+              },
+              pointHoverRadius: 6,
+              pointBackgroundColor: "#22c55e",
+              pointBorderColor: "#d1fae5",
+              pointBorderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+              mode: "index",
+              intersect: false
+            },
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: "rgba(8,16,29,0.96)",
+                borderColor: "rgba(148,163,184,0.16)",
+                borderWidth: 1,
+                titleColor: "#ffffff",
+                bodyColor: "#dbeafe",
+                displayColors: false,
+                padding: 12,
+                callbacks: {
+                  label: function(context){
+                    return `Price: ${currency}${Number(context.raw).toFixed(2)}`;
+                  }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: {
+                  color: "rgba(148,163,184,0.06)",
+                  drawBorder: false
+                },
+                ticks: {
+                  color: "#8fa3bf",
+                  maxRotation: 0,
+                  autoSkip: true,
+                  maxTicksLimit: 8
+                }
+              },
+              y: {
+                grid: {
+                  color: "rgba(148,163,184,0.08)",
+                  drawBorder: false
+                },
+                ticks: {
+                  color: "#8fa3bf",
+                  callback: function(value){
+                    return currency + Number(value).toFixed(0);
+                  }
+                }
+              }
+            }
+          }
+        });
+      })
+      .catch(err => console.log("Graph fetch error:", err));
+  }
+
+  function getCurrentUserId(){
+    return localStorage.getItem("currentUserId");
+  }
+
+  function getWatchlistKey(){
+    const userId = getCurrentUserId();
+    return userId ? `watchlist_${userId}` : "watchlist_guest";
+  }
+
+  function getWatchlist(){
+    return JSON.parse(localStorage.getItem(getWatchlistKey())) || [];
+  }
+
+  function saveWatchlist(data){
+    localStorage.setItem(getWatchlistKey(), JSON.stringify(data));
+  }
+
+  function isInWatchlist(){
+    const watchlist = getWatchlist();
+    return watchlist.some(item => item.symbol === symbol);
+  }
+
+  function updateWatchlistBtn(){
+    const btn = document.getElementById("watchlistBtn");
+    const label = document.getElementById("watchlistLabel");
+    const icon = document.getElementById("heartIcon");
+
+    if(isInWatchlist()){
+      btn.classList.add("saved");
+      label.innerText = "Saved in Watchlist";
+      icon.innerText = "❤";
+    } else {
+      btn.classList.remove("saved");
+      label.innerText = "Add to Watchlist";
+      icon.innerText = "❤";
+    }
+  }
+
+  function toggleWatchlist(){
+    let watchlist = getWatchlist();
+
+    if(isInWatchlist()){
+      watchlist = watchlist.filter(item => item.symbol !== symbol);
+    } else {
+      watchlist.push({ name: stockName || symbol, symbol: symbol });
+    }
+
+    saveWatchlist(watchlist);
+    updateWatchlistBtn();
+  }
+
+  updateMarketStatus();
+  updateWatchlistBtn();
+  loadGraph();
+  loadPrice();
+
+  setInterval(loadPrice, 5000);
+  setInterval(updateMarketStatus, 30000);
+</script>
+</body>
+</html>

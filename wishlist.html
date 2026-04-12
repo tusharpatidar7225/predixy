@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predixy My Wishlist</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --line:rgba(148,163,184,0.16);
+      --text:#e5eefc;
+      --muted:#91a1bb;
+      --green:#22c55e;
+      --blue:#38bdf8;
+      --red:#ef4444;
+      --shadow:0 18px 50px rgba(0,0,0,0.34);
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:"Inter","Segoe UI",system-ui,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at -5% -10%, rgba(56,189,248,0.12), transparent 55%),
+        radial-gradient(800px 420px at 105% 0%, rgba(34,197,94,0.10), transparent 52%),
+        linear-gradient(180deg, #07111f 0%, #08101d 100%);
+      padding:24px;
+    }
+
+    .page{
+      max-width:1400px;
+      margin:0 auto;
+    }
+
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      margin-bottom:24px;
+      flex-wrap:wrap;
+    }
+
+    .back-btn{
+      border:none;
+      outline:none;
+      cursor:pointer;
+      padding:12px 18px;
+      border-radius:16px;
+      color:var(--text);
+      font-weight:700;
+      background:linear-gradient(180deg, rgba(18,35,58,0.9), rgba(9,18,31,0.9));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      transition:all .25s ease;
+    }
+
+    .back-btn:hover{
+      transform:translateY(-2px);
+      border-color:rgba(56,189,248,0.24);
+    }
+
+    .count-badge{
+      padding:10px 16px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      background:rgba(15,23,42,0.74);
+      color:#cde7ff;
+      font-size:13px;
+      font-weight:700;
+      box-shadow:var(--shadow);
+    }
+
+    .hero{
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:24px;
+      background:
+        radial-gradient(420px 180px at 8% 0%, rgba(34,197,94,0.12), transparent 60%),
+        radial-gradient(320px 180px at 85% 0%, rgba(56,189,248,0.09), transparent 60%),
+        linear-gradient(180deg, rgba(18,35,58,0.82), rgba(8,16,29,0.90));
+      box-shadow:var(--shadow);
+      margin-bottom:24px;
+    }
+
+    .hero h1{
+      font-size:30px;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      margin-bottom:8px;
+    }
+
+    .hero p{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+      max-width:760px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:18px;
+    }
+
+    .card{
+      position:relative;
+      padding:20px;
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(16,28,46,0.95), rgba(9,16,29,0.98));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      transition:transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+      cursor:pointer;
+      min-height:170px;
+    }
+
+    .card:hover{
+      transform:translateY(-7px);
+      border-color:rgba(56,189,248,0.25);
+      box-shadow:0 24px 60px rgba(0,0,0,0.44);
+    }
+
+    .remove-btn{
+      position:absolute;
+      top:18px;
+      right:18px;
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:rgba(239,68,68,0.10);
+      border:1px solid rgba(239,68,68,0.18);
+      color:#ff6b8f;
+      cursor:pointer;
+      transition:all .2s ease;
+      font-size:18px;
+      z-index:2;
+    }
+
+    .remove-btn:hover{
+      transform:scale(1.06);
+      background:rgba(239,68,68,0.16);
+    }
+
+    .company h4{
+      font-size:23px;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      margin-bottom:10px;
+      padding-right:34px;
+    }
+
+    .meta-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+      margin-bottom:16px;
+    }
+
+    .pill{
+      font-size:12px;
+      color:#c7d5ea;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+    }
+
+    .ticker{
+      color:#7dd3fc;
+      background:rgba(56,189,248,0.10);
+      border-color:rgba(56,189,248,0.20);
+    }
+
+    .price{
+      margin-top:8px;
+      font-size:15px;
+      color:#d7e6f8;
+      min-height:52px;
+    }
+
+    .price-main{
+      display:block;
+      font-size:31px;
+      line-height:1.1;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      margin-bottom:8px;
+      color:#f8fbff;
+    }
+
+    .price-change{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      background:rgba(255,255,255,0.04);
+    }
+
+    .price-change.up{
+      color:var(--green);
+      background:rgba(34,197,94,0.10);
+    }
+
+    .price-change.down{
+      color:#f87171;
+      background:rgba(239,68,68,0.10);
+    }
+
+    .empty-state{
+      border:1px dashed rgba(148,163,184,0.2);
+      border-radius:22px;
+      padding:32px;
+      color:var(--muted);
+      text-align:center;
+      background:rgba(10,19,33,0.7);
+      display:none;
+    }
+
+    @media (max-width: 768px){
+      body{
+        padding:14px;
+      }
+
+      .hero{
+        padding:18px;
+        border-radius:22px;
+      }
+
+      .hero h1{
+        font-size:26px;
+      }
+
+      .company h4{
+        font-size:20px;
+      }
+
+      .price-main{
+        font-size:26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
+      <div class="count-badge">Saved Stocks: <span id="watchlistCount">0</span></div>
+    </div>
+
+    <section class="hero">
+      <h1>My Watchlist</h1>
+      <p>Here you can see all saved watchlist stocks. Click any card to open its detailed stock page, or remove it from your watchlist instantly.</p>
+    </section>
+
+    <div class="grid" id="watchlistGrid"></div>
+    <div class="empty-state" id="emptyState">No stocks in watchlist yet.</div>
+  </div>
+
+ <script>
+  function getCurrentUserId(){
+    return localStorage.getItem("currentUserId");
+  }
+
+  function getWatchlistKey(){
+    const userId = getCurrentUserId();
+    return userId ? `watchlist_${userId}` : "watchlist_guest";
+  }
+
+  function getWatchlist(){
+    return JSON.parse(localStorage.getItem(getWatchlistKey())) || [];
+  }
+
+  function saveWatchlist(data){
+    localStorage.setItem(getWatchlistKey(), JSON.stringify(data));
+  }
+
+  let watchlist = getWatchlist();
+
+  function goBack(){
+    window.location.href = "/dashboard";
+  }
+
+  function formatPrice(symbol, data){
+    const currency = symbol.includes(".NS") ? "₹" : "$";
+    const isUp = Number(data.change) >= 0;
+
+    return `
+      <span class="price-main">${currency}${Number(data.price).toFixed(2)}</span>
+      <span class="price-change ${isUp ? "up" : "down"}">
+        ${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)
+      </span>
+    `;
+  }
+
+  function openStock(symbol, name){
+    window.location.href = `/stock/${encodeURIComponent(symbol)}?s=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name)}`;
+  }
+
+  function removeFromWatchlist(symbol){
+    watchlist = watchlist.filter(item => item.symbol !== symbol);
+    saveWatchlist(watchlist);
+    renderWatchlist();
+  }
+
+  function createCard(stock){
+    const safeName = stock.name.replace(/'/g, "\\'");
+
+    return `
+      <div class="card" onclick="openStock('${stock.symbol}', '${safeName}')">
+        <div class="remove-btn" onclick="event.stopPropagation(); removeFromWatchlist('${stock.symbol}')">✖</div>
+
+        <div class="company">
+          <h4>${stock.name}</h4>
+          <div class="meta-row">
+            <span class="pill">Saved</span>
+            <span class="pill ticker">${stock.symbol}</span>
+          </div>
+        </div>
+
+        <div class="price" id="${stock.symbol}">Loading...</div>
+      </div>
+    `;
+  }
+
+  function renderWatchlist(){
+    watchlist = getWatchlist();
+
+    const grid = document.getElementById("watchlistGrid");
+    const empty = document.getElementById("emptyState");
+    const count = document.getElementById("watchlistCount");
+
+    count.innerText = watchlist.length;
+
+    if(!watchlist.length){
+      grid.innerHTML = "";
+      empty.style.display = "block";
+      return;
+    }
+
+    empty.style.display = "none";
+    grid.innerHTML = watchlist.map(createCard).join("");
+    fetchPrices();
+  }
+
+  function fetchPrices(){
+    watchlist.forEach(stock => {
+      fetch(`/get_price/${encodeURIComponent(stock.symbol)}`)
+        .then(res => res.json())
+        .then(data => {
+          const el = document.getElementById(stock.symbol);
+          if(!el) return;
+
+          if(data.error){
+            el.innerHTML = "Price unavailable";
+            return;
+          }
+
+          el.innerHTML = formatPrice(stock.symbol, data);
+        })
+        .catch(() => {
+          const el = document.getElementById(stock.symbol);
+          if(el) el.innerHTML = "Price unavailable";
+        });
+    });
+  }
+
+  window.addEventListener("load", function(){
+    renderWatchlist();
+    setInterval(fetchPrices, 30000);
+  });
+</script>
+</body>
+</html>

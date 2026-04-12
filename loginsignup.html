@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Login & Signup</title>
+
+<style>
+
+/* ===== GLOBAL RESET ===== */
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Segoe UI',sans-serif;
+}
+
+/* ===== BODY STYLE ===== */
+body{
+    height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#0f2027;   /* Dark background for particle visibility */
+    overflow:hidden;
+}
+
+/* ===== PARTICLE BACKGROUND LAYER ===== */
+#particles-js{
+    position:fixed;
+    width:100%;
+    height:100%;
+    top:0;
+    left:0;
+    z-index:0;   /* Important: keep 0, not -1 */
+}
+
+/* ===== MAIN GLASS CONTAINER ===== */
+.container{
+    position:relative;
+    z-index:2;   /* Above particles */
+    width:380px;
+    padding:40px;
+    border-radius:20px;
+    text-align:center;
+    background:rgba(255,255,255,0.08);
+    backdrop-filter:blur(18px);
+    box-shadow:0 20px 50px rgba(0,0,0,0.6);
+    animation:slideUp 0.8s ease forwards;
+}
+
+/* ===== SLIDE UP ANIMATION ===== */
+@keyframes slideUp{
+    from{
+        opacity:0;
+        transform:translateY(40px);
+    }
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+}
+
+/* ===== HEADING ===== */
+.container h2{
+    color:#fff;
+    margin-bottom:25px;
+}
+
+/* ===== INPUT STYLE ===== */
+.input-box{
+    width:100%;
+    padding:12px;
+    margin:10px 0;
+    border:none;
+    border-radius:10px;
+    outline:none;
+    font-size:14px;
+    transition:0.3s;
+}
+
+/* ===== INPUT FOCUS GLOW ===== */
+.input-box:focus{
+    box-shadow:0 0 10px #00e676;
+}
+
+/* ===== BUTTON STYLE ===== */
+.btn{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    border:none;
+    border-radius:10px;
+    background:#00e676;
+    font-size:16px;
+    cursor:pointer;
+    font-weight:bold;
+    transition:0.3s;
+}
+
+/* ===== BUTTON HOVER EFFECT ===== */
+.btn:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 25px rgba(0,230,118,0.5);
+}
+
+/* ===== LINK STYLE ===== */
+.link{
+    margin-top:15px;
+    color:#ddd;
+    font-size:14px;
+}
+
+.link a{
+    color:#00e676;
+    text-decoration:none;
+    font-weight:bold;
+    cursor:pointer;
+}
+
+/* ===== PASSWORD MESSAGE ===== */
+#passwordMessage{
+    font-size:13px;
+    font-weight:500;
+    margin-top:5px;
+    display:none;
+    text-align:left;
+}
+
+/* ===== HIDDEN CLASS FOR FORM SWITCH ===== */
+.hidden{
+    display:none;
+}
+
+.form-message{
+    margin-top:15px;
+    padding:10px;
+    border-radius:8px;
+    font-size:14px;
+    display:none;
+}
+
+.form-message.success{
+    background:rgba(34,197,94,0.15);
+    color:#22c55e;
+}
+
+.form-message.error{
+    background:rgba(239,68,68,0.15);
+    color:#ef4444;
+}
+
+.input-error{
+    font-size:13px;
+    color:#ef4444;
+    text-align:left;
+    margin-top:5px;
+    display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- ===== PARTICLE BACKGROUND DIV ===== -->
+<div id="particles-js"></div>
+
+<!-- ===== LOGIN FORM ===== -->
+<div class="container" id="login">
+    <h2>Login</h2>
+
+    <input type="email" class="input-box" id="loginEmail" placeholder="Email">
+    <input type="password" class="input-box" id="loginPass" placeholder="Password">
+
+    <button class="btn" onclick="login()">Login</button>
+<div id="loginMessage" class="form-message"></div>
+
+    <div class="link">
+        New user? <a onclick="showSignup()">Signup</a>
+    </div>
+</div>
+
+<!-- ===== SIGNUP FORM ===== -->
+<div class="container hidden" id="signup">
+    <h2>Signup</h2>
+
+    <input type="text" class="input-box" id="signupUser" placeholder="Username">
+    <input type="email"
+       class="input-box"
+       id="signupEmail"
+       placeholder="Email">
+       
+
+<div id="emailError" class="input-error"></div>
+
+    <input type="password"
+           class="input-box"
+           id="signupPass"
+           placeholder="Password"
+           onfocus="showRules()"
+           onblur="hideRules()"
+           onkeyup="validatePassword()">
+
+    <div id="passwordMessage"></div>
+
+    <input type="password" class="input-box" id="signupConfirm" placeholder="Confirm Password">
+
+    <button class="btn" onclick="signup()">Create Account</button>
+<div id="signupMessage" class="form-message"></div>
+
+    <div class="link">
+        <a onclick="showLogin()">Back to Login</a>
+    </div>
+</div>
+
+<!-- ===== PARTICLES JS LIBRARY (IMPORTANT: BEFORE CONFIG) ===== -->
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
+<script>
+/* ===== PARTICLE CONFIGURATION ===== */
+particlesJS("particles-js", {
+  particles: {
+    number: { value: 100 },
+    color: { value: "#00e676" },
+    shape: { type: "circle" },
+    opacity: { value: 0.7 },
+    size: { value: 4, random: true },
+    line_linked: {
+      enable: true,
+      distance: 120,
+      color: "#00e676",
+      opacity: 0.5,
+      width: 1
+    },
+    move: {
+      enable: true,
+      speed: 3,
+      direction: "none",
+      out_mode: "bounce"
+    }
+  },
+  interactivity: {
+    events: {
+      onhover: { enable: true, mode: "repulse" },
+      onclick: { enable: true, mode: "push" }
+    }
+  },
+  retina_detect: true
+});
+
+/* ===== FORM SWITCH FUNCTIONS ===== */
+function showSignup(){
+  document.getElementById("login").classList.add("hidden");
+  document.getElementById("signup").classList.remove("hidden");
+}
+
+function showLogin(){
+  document.getElementById("signup").classList.add("hidden");
+  document.getElementById("login").classList.remove("hidden");
+}
+
+/* ===== PASSWORD RULE DISPLAY ===== */
+function showRules(){
+  let message = document.getElementById("passwordMessage");
+  message.style.display = "block";
+  message.style.color = "red";
+  message.innerHTML = "Password must contain 8+ chars, Uppercase, Lowercase, Number & Special character";
+}
+
+function hideRules(){
+  let password = document.getElementById("signupPass").value;
+  let message = document.getElementById("passwordMessage");
+  if(password === ""){
+    message.style.display = "none";
+  }
+}
+
+/* ===== PASSWORD VALIDATION ===== */
+function validatePassword(){
+  let password = document.getElementById("signupPass").value;
+  let message = document.getElementById("passwordMessage");
+
+  let strongPassword =
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[@$!%*?&]/.test(password);
+
+  if(strongPassword){
+    message.innerHTML = "✔ Strong Password";
+    message.style.color = "lightgreen";
+  } else {
+    message.innerHTML = "Password must meet required criteria";
+    message.style.color = "red";
+  }
+}
+
+/* ===== EMAIL VALIDATION ===== */
+const emailInput = document.getElementById("signupEmail");
+const emailError = document.getElementById("emailError");
+
+emailInput.addEventListener("blur", function(){
+  const email = emailInput.value.trim();
+  const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+  if(email === ""){
+    emailError.style.display = "none";
+    emailInput.style.border = "none";
+    return;
+  }
+
+  if(!emailPattern.test(email)){
+    emailError.innerText = "❌ Only @gmail.com email allowed";
+    emailError.style.display = "block";
+    emailInput.style.border = "1px solid #ef4444";
+  } else {
+    emailError.style.display = "none";
+    emailInput.style.border = "1px solid #22c55e";
+  }
+});
+
+/* ===== MESSAGE HELPER ===== */
+function showMessage(id, text, type){
+  const box = document.getElementById(id);
+  box.innerText = text;
+  box.className = "form-message " + type;
+  box.style.display = "block";
+}
+
+/* ===== SIGNUP ===== */
+function signup(){
+  let username = document.getElementById("signupUser").value.trim();
+  let email = document.getElementById("signupEmail").value.trim();
+  let password = document.getElementById("signupPass").value;
+  let confirmPassword = document.getElementById("signupConfirm").value;
+
+  const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+  const strongPassword =
+    password.length >= 8 &&
+    /[A-Z]/.test(password) &&
+    /[a-z]/.test(password) &&
+    /[0-9]/.test(password) &&
+    /[@$!%*?&]/.test(password);
+
+  if(username === "" || email === "" || password === "" || confirmPassword === ""){
+    showMessage("signupMessage", "⚠ Please fill all fields", "error");
+    return;
+  }
+
+  if(!gmailPattern.test(email)){
+    showMessage("signupMessage", "❌ Only @gmail.com email allowed", "error");
+    return;
+  }
+
+  if(!strongPassword){
+    showMessage("signupMessage", "❌ Password is not strong enough", "error");
+    return;
+  }
+
+  if(password !== confirmPassword){
+    showMessage("signupMessage", "❌ Passwords do not match", "error");
+    return;
+  }
+
+  fetch("/signup", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      username: username,
+      email: email,
+      password: password
+    })
+  })
+  .then(res => res.json())
+  .then(data => {
+   if(data.user_id){
+  localStorage.setItem("currentUserId", data.user_id);
+  showMessage("signupMessage", "✅ Account created successfully! Redirecting to dashboard...", "success");
+
+  setTimeout(() => {
+    window.location.href = "/dashboard";
+  }, 1000);
+} else {
+  showMessage("signupMessage", "❌ " + (data.message || "Signup failed"), "error");
+}
+  })
+  .catch(() => {
+    showMessage("signupMessage", "⚠ Server error. Try again.", "error");
+  });
+}
+
+/* ===== LOGIN ===== */
+function login(){
+  let email = document.getElementById("loginEmail").value.trim();
+  let password = document.getElementById("loginPass").value;
+
+  if(email === "" || password === ""){
+    showMessage("loginMessage", "⚠ Please enter email & password", "error");
+    return;
+  }
+
+  fetch("/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  })
+  .then(res => res.json())
+  .then(data => {
+    if(data.user_id){
+      localStorage.setItem("currentUserId", data.user_id);
+      showMessage("loginMessage", "✅ Login Successful! Redirecting...", "success");
+
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1000);
+    } else {
+      showMessage("loginMessage", "❌ " + (data.message || "Invalid email or password"), "error");
+    }
+  })
+  .catch(() => {
+    showMessage("loginMessage", "⚠ Server error. Try again.", "error");
+  });
+}
+</script>
+</body>
+</html>

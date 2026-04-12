@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Predixy Dashboard</title>
+  <style>
+    :root{
+      --bg:#07111f;
+      --bg-soft:#0b1728;
+      --panel:#0f1b2d;
+      --panel-2:#12233a;
+      --line:rgba(148,163,184,0.16);
+      --text:#e5eefc;
+      --muted:#91a1bb;
+      --green:#22c55e;
+      --green-soft:rgba(34,197,94,0.14);
+      --blue:#38bdf8;
+      --red:#ef4444;
+      --shadow:0 18px 50px rgba(0,0,0,0.34);
+      --radius:22px;
+    }
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:"Inter","Segoe UI",system-ui,sans-serif;
+    }
+
+    body{
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at -5% -10%, rgba(56,189,248,0.12), transparent 55%),
+        radial-gradient(800px 420px at 105% 0%, rgba(34,197,94,0.10), transparent 52%),
+        linear-gradient(180deg, #07111f 0%, #08101d 100%);
+      display:flex;
+    }
+
+    .sidebar{
+      position:fixed;
+      top:0;
+      left:0;
+      width:280px;
+      height:100vh;
+      padding:24px 20px;
+      background:rgba(8,16,29,0.92);
+      backdrop-filter:blur(16px);
+      border-right:1px solid var(--line);
+      display:flex;
+      flex-direction:column;
+      z-index:10;
+    }
+
+    .brand{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+      padding:18px;
+      border:1px solid var(--line);
+      border-radius:20px;
+      background:linear-gradient(180deg, rgba(18,35,58,0.85), rgba(9,18,31,0.85));
+      box-shadow:var(--shadow);
+      margin-bottom:22px;
+    }
+
+    .brand-mark{
+      width:42px;
+      height:42px;
+      border-radius:14px;
+      display:grid;
+      place-items:center;
+      font-weight:800;
+      color:#032818;
+      background:linear-gradient(135deg, var(--green), #86efac);
+      box-shadow:0 10px 24px rgba(34,197,94,0.30);
+    }
+
+    .brand h2{
+      font-size:18px;
+      line-height:1.2;
+      margin-bottom:4px;
+    }
+
+    .brand p{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.5;
+    }
+
+    .menu-title{
+      font-size:12px;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:#7f91ac;
+      margin:0 8px 12px;
+    }
+
+    .sidebar ul{
+      list-style:none;
+      overflow:auto;
+      padding-right:4px;
+    }
+
+    .sidebar li{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:13px 15px;
+      margin-bottom:8px;
+      border-radius:16px;
+      color:#c9d7ea;
+      cursor:pointer;
+      border:1px solid transparent;
+      transition:all .25s ease;
+    }
+
+    .sidebar li:hover{
+      background:rgba(56,189,248,0.08);
+      border-color:rgba(56,189,248,0.16);
+      transform:translateX(4px);
+    }
+
+    .sidebar li.active{
+      background:linear-gradient(135deg, rgba(34,197,94,0.18), rgba(56,189,248,0.12));
+      border-color:rgba(34,197,94,0.32);
+      color:#effcf5;
+      box-shadow:inset 0 0 0 1px rgba(255,255,255,0.03), 0 12px 26px rgba(34,197,94,0.14);
+    }
+
+    .sidebar li span:last-child{
+      color:#7f91ac;
+      font-size:12px;
+    }
+
+    .logout{
+      margin-top:auto;
+      border:none;
+      border-radius:18px;
+      padding:14px 16px;
+      font-size:14px;
+      font-weight:700;
+      color:white;
+      cursor:pointer;
+      background:linear-gradient(135deg, #ef4444, #dc2626);
+      box-shadow:0 14px 30px rgba(239,68,68,0.28);
+      transition:transform .25s ease, box-shadow .25s ease;
+    }
+
+    .logout:hover{
+      transform:translateY(-2px);
+      box-shadow:0 18px 38px rgba(239,68,68,0.38);
+    }
+
+    .main{
+      margin-left:280px;
+      flex:1;
+      min-height:100vh;
+      padding:28px;
+    }
+
+    .hero{
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:24px;
+      background:
+        radial-gradient(420px 180px at 8% 0%, rgba(34,197,94,0.12), transparent 60%),
+        radial-gradient(320px 180px at 85% 0%, rgba(56,189,248,0.09), transparent 60%),
+        linear-gradient(180deg, rgba(18,35,58,0.82), rgba(8,16,29,0.90));
+      box-shadow:var(--shadow);
+      margin-bottom:24px;
+    }
+
+    .topbar{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:18px;
+      margin-bottom:22px;
+      flex-wrap:wrap;
+    }
+
+    .hero-copy h1{
+      font-size:30px;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      margin-bottom:8px;
+    }
+
+    .hero-copy p{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.6;
+      max-width:720px;
+    }
+
+    .hero-actions{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .market-badge{
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:10px 16px;
+      font-size:13px;
+      font-weight:700;
+      background:rgba(15,23,42,0.74);
+      color:#cde7ff;
+      min-width:145px;
+      text-align:center;
+    }
+.watchlist-btn{
+  cursor:pointer;
+  transition:all .25s ease;
+}
+
+.watchlist-btn:hover{
+  transform:translateY(-2px);
+  border-color:rgba(239,68,68,0.22);
+  color:#ffd6de;
+  background:rgba(239,68,68,0.10);
+}
+
+    .search-wrapper{
+      position:relative;
+      width:min(420px, 100%);
+    }
+
+    .search-icon{
+      position:absolute;
+      left:16px;
+      top:50%;
+      transform:translateY(-50%);
+      opacity:.68;
+      pointer-events:none;
+      font-size:14px;
+    }
+
+    .search{
+      width:100%;
+      border:none;
+      outline:none;
+      border-radius:18px;
+      padding:15px 18px 15px 42px;
+      color:var(--text);
+      font-size:14px;
+      border:1px solid var(--line);
+      background:rgba(4,11,22,0.88);
+      box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .search:focus{
+      border-color:rgba(56,189,248,0.38);
+      box-shadow:0 0 0 4px rgba(56,189,248,0.10);
+    }
+
+    .suggestions{
+      position:absolute;
+      top:calc(100% + 10px);
+      left:0;
+      width:100%;
+      display:none;
+      overflow:hidden;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:#0d1828;
+      box-shadow:0 20px 50px rgba(0,0,0,0.36);
+      z-index:20;
+    }
+
+    .suggestions div{
+      padding:12px 14px;
+      cursor:pointer;
+      border-bottom:1px solid rgba(255,255,255,0.05);
+      transition:background .2s ease;
+    }
+
+    .suggestions div:last-child{border-bottom:none;}
+    .suggestions div:hover{background:rgba(56,189,248,0.08);}
+
+    .hero-stats{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+      gap:14px;
+    }
+
+    .stat-card{
+      padding:16px 18px;
+      border-radius:20px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(15,27,45,0.92), rgba(10,19,33,0.92));
+    }
+
+    .stat-label{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:#7d90aa;
+      margin-bottom:8px;
+    }
+
+    .stat-value{
+      font-size:20px;
+      font-weight:800;
+    }
+
+    .stat-sub{
+      margin-top:6px;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin:8px 2px 16px;
+      flex-wrap:wrap;
+    }
+
+    .section-head h3{
+      font-size:18px;
+    }
+
+    .section-head p{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+      gap:18px;
+    }
+
+    .card{
+      position:relative;
+      padding:20px;
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(16,28,46,0.95), rgba(9,16,29,0.98));
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      transition:transform .28s ease, border-color .28s ease, box-shadow .28s ease;
+      cursor:pointer;
+      min-height:170px;
+    }
+
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:auto -30px -50px auto;
+      width:130px;
+      height:130px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(56,189,248,0.14), transparent 68%);
+      pointer-events:none;
+    }
+
+    .card:hover{
+      transform:translateY(-7px);
+      border-color:rgba(56,189,248,0.25);
+      box-shadow:0 24px 60px rgba(0,0,0,0.44);
+    }
+
+    .card-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    .company{
+      min-width:0;
+    }
+
+    .company h4{
+      font-size:23px;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      margin-bottom:8px;
+      padding-right:34px;
+    }
+
+    .meta-row{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .pill{
+      font-size:12px;
+      color:#c7d5ea;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.04);
+    }
+
+    .ticker{
+      color:#7dd3fc;
+      background:rgba(56,189,248,0.10);
+      border-color:rgba(56,189,248,0.20);
+    }
+
+    .heart{
+      position:absolute;
+      top:18px;
+      right:18px;
+      width:38px;
+      height:38px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.06);
+      color:#9aa9c2;
+      cursor:pointer;
+      transition:all .2s ease;
+      font-size:18px;
+      z-index:2;
+    }
+
+    .heart:hover{
+      color:#ff6b8f;
+      transform:scale(1.06);
+      background:rgba(239,68,68,0.08);
+      border-color:rgba(239,68,68,0.18);
+    }
+
+    .price{
+      margin-top:8px;
+      font-size:15px;
+      color:#d7e6f8;
+      min-height:52px;
+    }
+
+    .price-main{
+      display:block;
+      font-size:31px;
+      line-height:1.1;
+      font-weight:800;
+      letter-spacing:-0.03em;
+      margin-bottom:8px;
+      color:#f8fbff;
+    }
+
+    .price-change{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 10px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      background:rgba(255,255,255,0.04);
+    }
+
+    .price-change.up{
+      color:var(--green);
+      background:rgba(34,197,94,0.10);
+    }
+
+    .price-change.down{
+      color:#f87171;
+      background:rgba(239,68,68,0.10);
+    }
+
+    .empty-state{
+      display:none;
+      margin-top:10px;
+      border:1px dashed rgba(148,163,184,0.2);
+      border-radius:22px;
+      padding:28px;
+      color:var(--muted);
+      text-align:center;
+      background:rgba(10,19,33,0.7);
+    }
+
+    @media (max-width: 1080px){
+      .sidebar{width:240px;}
+      .main{margin-left:240px;}
+    }
+
+    @media (max-width: 880px){
+      body{display:block;}
+      .sidebar{
+        position:static;
+        width:100%;
+        height:auto;
+        border-right:none;
+        border-bottom:1px solid var(--line);
+      }
+      .main{
+        margin-left:0;
+        padding:18px;
+      }
+    }
+
+    @media (max-width: 560px){
+      .hero-copy h1{font-size:24px;}
+      .company h4{font-size:20px;}
+      .price-main{font-size:26px;}
+      .main{padding:14px;}
+      .hero{padding:18px; border-radius:22px;}
+      .grid{gap:14px;}
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="brand">
+      <div>
+        <h2>Predixy</h2>
+        <p>Track sectors, scan stocks, and jump into detailed prediction pages from one clean workspace.</p>
+      </div>
+      <div class="brand-mark">PX</div>
+    </div>
+
+    <div class="menu-title">Categories</div>
+    <ul>
+      <li class="active" onclick="filterCategory('All', this)"><span>All Stocks</span><span>01</span></li>
+      <li onclick="filterCategory('Technology', this)"><span>Technology</span><span>02</span></li>
+      <li onclick="filterCategory('Banking', this)"><span>Banking</span><span>03</span></li>
+      <li onclick="filterCategory('Construction', this)"><span>Construction</span><span>04</span></li>
+      <li onclick="filterCategory('FMCG', this)"><span>FMCG</span><span>05</span></li>
+      <li onclick="filterCategory('Pharma', this)"><span>Pharma</span><span>06</span></li>
+      <li onclick="filterCategory('Energy', this)"><span>Energy</span><span>07</span></li>
+      <li onclick="filterCategory('Automobile', this)"><span>Automobiles</span><span>08</span></li>
+      <li onclick="filterCategory('IT', this)"><span>IT</span><span>09</span></li>
+    </ul>
+
+    <button class="logout" onclick="logout()">Logout</button>
+  </div>
+
+  <div class="main">
+    <section class="hero">
+      <div class="topbar">
+        <div class="hero-copy">
+          <h1>Market Dashboard</h1>
+          <p>Display stocks sector-wise in a modern and polished dashboard layout. Include real-time search functionality and allow users to open each stock for detailed analytics, prediction insights, charts, and performance data.</p>
+        </div>
+
+        <div class="hero-actions">
+  <div id="marketStatus" class="market-badge">Checking...</div>
+
+  <button class="market-badge watchlist-btn" onclick="openWatchlist()">❤ Watchlist</button>
+
+  <div class="search-wrapper">
+    <span class="search-icon">⌕</span>
+    <input class="search" id="searchInput" placeholder="Search stock or company name" autocomplete="off" />
+    <div id="suggestionsBox" class="suggestions"></div>
+  </div>
+</div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="totalStocks">0</div>
+          <div class="stat-sub">Stocks available in this dashboard</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Visible</div>
+          <div class="stat-value" id="visibleStocks">0</div>
+          <div class="stat-sub">Cards matching current filter</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Focused Sector</div>
+          <div class="stat-value" id="activeCategory">All</div>
+          <div class="stat-sub">Category selected from sidebar</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Refresh Window</div>
+          <div class="stat-value">30s</div>
+          <div class="stat-sub">Live price polling interval</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-head">
+      <div>
+        <h3>Tracked Stocks</h3>
+        <p>Click any card to open the stock details page.</p>
+      </div>
+    </div>
+
+    <div class="grid" id="stockGrid">
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="card-top">
+          <div class="company">
+            <h4>Apple</h4>
+            <div class="meta-row">
+              <span class="pill">Technology</span>
+              <span class="pill ticker">AAPL</span>
+            </div>
+          </div>
+        </div>
+        <div class="price" id="AAPL">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>Microsoft</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">MSFT</span></div>
+        </div>
+        <div class="price" id="MSFT">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>Google</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">GOOGL</span></div>
+        </div>
+        <div class="price" id="GOOGL">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>Amazon</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">AMZN</span></div>
+        </div>
+        <div class="price" id="AMZN">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>Meta</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">META</span></div>
+        </div>
+        <div class="price" id="META">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>Tesla</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">TSLA</span></div>
+        </div>
+        <div class="price" id="TSLA">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>NVIDIA</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">NVDA</span></div>
+        </div>
+        <div class="price" id="NVDA">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>AMD</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">AMD</span></div>
+        </div>
+        <div class="price" id="AMD">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>Netflix</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">NFLX</span></div>
+        </div>
+        <div class="price" id="NFLX">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Technology" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company">
+          <h4>Adobe</h4>
+          <div class="meta-row"><span class="pill">Technology</span><span class="pill ticker">ADBE</span></div>
+        </div>
+        <div class="price" id="ADBE">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>HDFC Bank</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">HDFCBANK.NS</span></div></div>
+        <div class="price" id="HDFCBANK.NS">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>ICICI Bank</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">ICICIBANK.NS</span></div></div>
+        <div class="price" id="ICICIBANK.NS">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>SBI</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">SBIN.NS</span></div></div>
+        <div class="price" id="SBIN.NS">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>Axis Bank</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">AXISBANK.NS</span></div></div>
+        <div class="price" id="AXISBANK.NS">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>Kotak Bank</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">KOTAKBANK.NS</span></div></div>
+        <div class="price" id="KOTAKBANK.NS">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>JPMorgan</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">JPM</span></div></div>
+        <div class="price" id="JPM">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>Goldman Sachs</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">GS</span></div></div>
+        <div class="price" id="GS">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>Bank of America</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">BAC</span></div></div>
+        <div class="price" id="BAC">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>Wells Fargo</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">WFC</span></div></div>
+        <div class="price" id="WFC">Loading...</div>
+      </div>
+      <div class="card" data-category="Banking" onclick="openStock(this)">
+        <div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div>
+        <div class="company"><h4>Citi</h4><div class="meta-row"><span class="pill">Banking</span><span class="pill ticker">C</span></div></div>
+        <div class="price" id="C">Loading...</div>
+      </div>
+
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Reliance</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">RELIANCE.NS</span></div></div><div class="price" id="RELIANCE.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>ONGC</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">ONGC.NS</span></div></div><div class="price" id="ONGC.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>NTPC</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">NTPC.NS</span></div></div><div class="price" id="NTPC.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Indian Oil</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">IOC.NS</span></div></div><div class="price" id="IOC.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>BPCL</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">BPCL.NS</span></div></div><div class="price" id="BPCL.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Adani Green</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">ADANIGREEN.NS</span></div></div><div class="price" id="ADANIGREEN.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Tata Power</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">TATAPOWER.NS</span></div></div><div class="price" id="TATAPOWER.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Power Grid</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">POWERGRID.NS</span></div></div><div class="price" id="POWERGRID.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>GAIL</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">GAIL.NS</span></div></div><div class="price" id="GAIL.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>NHPC</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">NHPC.NS</span></div></div><div class="price" id="NHPC.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Coal India</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">COALINDIA.NS</span></div></div><div class="price" id="COALINDIA.NS">Loading...</div></div>
+      <div class="card" data-category="Energy" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>JSW Energy</h4><div class="meta-row"><span class="pill">Energy</span><span class="pill ticker">JSWENERGY.NS</span></div></div><div class="price" id="JSWENERGY.NS">Loading...</div></div>
+
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>ITC</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">ITC.NS</span></div></div><div class="price" id="ITC.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>HUL</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">HINDUNILVR.NS</span></div></div><div class="price" id="HINDUNILVR.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Dabur</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">DABUR.NS</span></div></div><div class="price" id="DABUR.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Britannia</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">BRITANNIA.NS</span></div></div><div class="price" id="BRITANNIA.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Marico</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">MARICO.NS</span></div></div><div class="price" id="MARICO.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Tata Consumer</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">TATACONSUM.NS</span></div></div><div class="price" id="TATACONSUM.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Nestle India</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">NESTLEIND.NS</span></div></div><div class="price" id="NESTLEIND.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Godrej Consumer</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">GODREJCP.NS</span></div></div><div class="price" id="GODREJCP.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Colgate India</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">COLPAL.NS</span></div></div><div class="price" id="COLPAL.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Varun Beverages</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">VBL.NS</span></div></div><div class="price" id="VBL.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>P&amp;G Hygiene</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">PGHH.NS</span></div></div><div class="price" id="PGHH.NS">Loading...</div></div>
+      <div class="card" data-category="FMCG" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Emami</h4><div class="meta-row"><span class="pill">FMCG</span><span class="pill ticker">EMAMILTD.NS</span></div></div><div class="price" id="EMAMILTD.NS">Loading...</div></div>
+
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Sun Pharma</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">SUNPHARMA.NS</span></div></div><div class="price" id="SUNPHARMA.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Cipla</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">CIPLA.NS</span></div></div><div class="price" id="CIPLA.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Dr Reddy's</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">DRREDDY.NS</span></div></div><div class="price" id="DRREDDY.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Divi's Lab</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">DIVISLAB.NS</span></div></div><div class="price" id="DIVISLAB.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Lupin</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">LUPIN.NS</span></div></div><div class="price" id="LUPIN.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Aurobindo Pharma</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">AUROPHARMA.NS</span></div></div><div class="price" id="AUROPHARMA.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Torrent Pharma</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">TORNTPHARM.NS</span></div></div><div class="price" id="TORNTPHARM.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Alkem Labs</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">ALKEM.NS</span></div></div><div class="price" id="ALKEM.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Biocon</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">BIOCON.NS</span></div></div><div class="price" id="BIOCON.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Glenmark</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">GLENMARK.NS</span></div></div><div class="price" id="GLENMARK.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Zydus Life</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">ZYDUSLIFE.NS</span></div></div><div class="price" id="ZYDUSLIFE.NS">Loading...</div></div>
+      <div class="card" data-category="Pharma" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Abbott India</h4><div class="meta-row"><span class="pill">Pharma</span><span class="pill ticker">ABBOTINDIA.NS</span></div></div><div class="price" id="ABBOTINDIA.NS">Loading...</div></div>
+
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>L&amp;T</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">LT.NS</span></div></div><div class="price" id="LT.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>DLF</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">DLF.NS</span></div></div><div class="price" id="DLF.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>UltraTech Cement</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">ULTRACEMCO.NS</span></div></div><div class="price" id="ULTRACEMCO.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Shree Cement</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">SHREECEM.NS</span></div></div><div class="price" id="SHREECEM.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Ambuja Cement</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">AMBUJACEM.NS</span></div></div><div class="price" id="AMBUJACEM.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>ACC</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">ACC.NS</span></div></div><div class="price" id="ACC.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Adani Ports</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">ADANIPORTS.NS</span></div></div><div class="price" id="ADANIPORTS.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>IRB Infra</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">IRB.NS</span></div></div><div class="price" id="IRB.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>NBCC</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">NBCC.NS</span></div></div><div class="price" id="NBCC.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Oberoi Realty</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">OBEROIRLTY.NS</span></div></div><div class="price" id="OBEROIRLTY.NS">Loading...</div></div>
+      <div class="card" data-category="Construction" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Godrej Properties</h4><div class="meta-row"><span class="pill">Construction</span><span class="pill ticker">GODREJPROP.NS</span></div></div><div class="price" id="GODREJPROP.NS">Loading...</div></div>
+
+      <div class="card" data-category="Automobile" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Maruti</h4><div class="meta-row"><span class="pill">Automobile</span><span class="pill ticker">MARUTI.NS</span></div></div><div class="price" id="MARUTI.NS">Loading...</div></div>
+
+      <div class="card" data-category="IT" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>TCS</h4><div class="meta-row"><span class="pill">IT</span><span class="pill ticker">TCS.NS</span></div></div><div class="price" id="TCS.NS">Loading...</div></div>
+      <div class="card" data-category="IT" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Infosys</h4><div class="meta-row"><span class="pill">IT</span><span class="pill ticker">INFY.NS</span></div></div><div class="price" id="INFY.NS">Loading...</div></div>
+      <div class="card" data-category="IT" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>Wipro</h4><div class="meta-row"><span class="pill">IT</span><span class="pill ticker">WIPRO.NS</span></div></div><div class="price" id="WIPRO.NS">Loading...</div></div>
+      <div class="card" data-category="IT" onclick="openStock(this)"><div class="heart" onclick="event.stopPropagation(); toggleWatchlist(this, this.closest('.card').querySelector('h4').innerText, this.closest('.card').querySelector('.ticker').innerText)">❤</div><div class="company"><h4>HCL Tech</h4><div class="meta-row"><span class="pill">IT</span><span class="pill ticker">HCLTECH.NS</span></div></div><div class="price" id="HCLTECH.NS">Loading...</div></div>
+    </div>
+
+    <div class="empty-state" id="emptyState">No stocks matched your current search or category filter.</div>
+  </div>
+
+<script>
+  const stocks = [
+    { name: "Apple", symbol: "AAPL", category: "Technology" },
+    { name: "Microsoft", symbol: "MSFT", category: "Technology" },
+    { name: "Google", symbol: "GOOGL", category: "Technology" },
+    { name: "Amazon", symbol: "AMZN", category: "Technology" },
+    { name: "Meta", symbol: "META", category: "Technology" },
+    { name: "Tesla", symbol: "TSLA", category: "Technology" },
+    { name: "NVIDIA", symbol: "NVDA", category: "Technology" },
+    { name: "AMD", symbol: "AMD", category: "Technology" },
+    { name: "Netflix", symbol: "NFLX", category: "Technology" },
+    { name: "Adobe", symbol: "ADBE", category: "Technology" },
+
+    { name: "HDFC Bank", symbol: "HDFCBANK.NS", category: "Banking" },
+    { name: "ICICI Bank", symbol: "ICICIBANK.NS", category: "Banking" },
+    { name: "SBI", symbol: "SBIN.NS", category: "Banking" },
+    { name: "Axis Bank", symbol: "AXISBANK.NS", category: "Banking" },
+    { name: "Kotak Bank", symbol: "KOTAKBANK.NS", category: "Banking" },
+    { name: "JPMorgan", symbol: "JPM", category: "Banking" },
+    { name: "Goldman Sachs", symbol: "GS", category: "Banking" },
+    { name: "Bank of America", symbol: "BAC", category: "Banking" },
+    { name: "Wells Fargo", symbol: "WFC", category: "Banking" },
+    { name: "Citi", symbol: "C", category: "Banking" },
+
+    { name: "Reliance", symbol: "RELIANCE.NS", category: "Energy" },
+    { name: "ONGC", symbol: "ONGC.NS", category: "Energy" },
+    { name: "NTPC", symbol: "NTPC.NS", category: "Energy" },
+    { name: "Indian Oil", symbol: "IOC.NS", category: "Energy" },
+    { name: "BPCL", symbol: "BPCL.NS", category: "Energy" },
+    { name: "Adani Green", symbol: "ADANIGREEN.NS", category: "Energy" },
+    { name: "Tata Power", symbol: "TATAPOWER.NS", category: "Energy" }
+  ];
+
+  let currentCategory = "All";
+  let searchTerm = "";
+
+  function getAllCards(){
+    return [...document.querySelectorAll("#stockGrid .card")];
+  }
+
+  function updateCounts(){
+    const cards = getAllCards();
+    const visibleCards = cards.filter(card => card.style.display !== "none");
+
+    document.getElementById("totalStocks").innerText = cards.length;
+    document.getElementById("visibleStocks").innerText = visibleCards.length;
+    document.getElementById("activeCategory").innerText = currentCategory;
+  }
+
+  function applyFilters(){
+    const cards = getAllCards();
+
+    cards.forEach(card => {
+      const name = card.querySelector("h4")?.innerText.toLowerCase() || "";
+      const symbol = card.querySelector(".ticker")?.innerText.toLowerCase() || "";
+      const category = card.getAttribute("data-category") || "";
+
+      const categoryMatch = currentCategory === "All" || category === currentCategory;
+      const searchMatch = !searchTerm || name.includes(searchTerm) || symbol.includes(searchTerm);
+
+      card.style.display = (categoryMatch && searchMatch) ? "" : "none";
+    });
+
+    updateCounts();
+  }
+
+  function filterCategory(category, el){
+    currentCategory = category;
+
+    document.querySelectorAll(".sidebar li").forEach(item => item.classList.remove("active"));
+    if(el) el.classList.add("active");
+
+    applyFilters();
+  }
+
+  function openStock(card){
+    const symbol = card.querySelector(".ticker")?.innerText.trim();
+    const name = card.querySelector("h4")?.innerText.trim();
+
+    if(!symbol) return;
+
+    window.location.href = `/stock/${encodeURIComponent(symbol)}?s=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name)}`;
+  }
+
+  function formatPrice(symbol, data){
+    const currency = symbol.includes(".NS") ? "₹" : "$";
+    const isUp = Number(data.change) >= 0;
+
+    return `
+      <span class="price-main">${currency}${Number(data.price).toFixed(2)}</span>
+      <span class="price-change ${isUp ? "up" : "down"}">
+        ${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)
+      </span>
+    `;
+  }
+
+  function fetchPrice(symbol){
+    fetch(`/get_price/${encodeURIComponent(symbol)}`)
+      .then(res => res.json())
+      .then(data => {
+        const el = document.getElementById(symbol);
+        if(!el) return;
+
+        if(data.error){
+          el.innerHTML = "Price unavailable";
+          return;
+        }
+
+        el.innerHTML = formatPrice(symbol, data);
+      })
+      .catch(() => {
+        const el = document.getElementById(symbol);
+        if(el) el.innerHTML = "Price unavailable";
+      });
+  }
+
+  function fetchPrices(){
+    stocks.forEach(stock => fetchPrice(stock.symbol));
+  }
+
+  function updateMarketStatus(){
+    const badge = document.getElementById("marketStatus");
+    const istTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+    const day = istTime.getDay();
+    const hrs = istTime.getHours();
+    const mins = istTime.getMinutes();
+
+    const marketOpen =
+      day !== 0 && day !== 6 &&
+      ((hrs > 9 || (hrs === 9 && mins >= 15)) &&
+      (hrs < 15 || (hrs === 15 && mins <= 30)));
+
+    if(marketOpen){
+      badge.innerText = "🟢 Market Open";
+      badge.style.background = "rgba(34,197,94,0.12)";
+      badge.style.color = "#4ade80";
+      badge.style.borderColor = "rgba(34,197,94,0.22)";
+    }else{
+      badge.innerText = "🔴 Market Closed";
+      badge.style.background = "rgba(239,68,68,0.12)";
+      badge.style.color = "#f87171";
+      badge.style.borderColor = "rgba(239,68,68,0.18)";
+    }
+  }
+
+  function showSuggestions(value){
+    const box = document.getElementById("suggestionsBox");
+    box.innerHTML = "";
+
+    if(!value.trim()){
+      box.style.display = "none";
+      return;
+    }
+
+    const results = stocks.filter(stock =>
+      stock.name.toLowerCase().includes(value.toLowerCase()) ||
+      stock.symbol.toLowerCase().includes(value.toLowerCase())
+    ).slice(0, 8);
+
+    if(!results.length){
+      box.style.display = "none";
+      return;
+    }
+
+    results.forEach(stock => {
+      const item = document.createElement("div");
+      item.innerText = `${stock.name} (${stock.symbol})`;
+      item.onclick = () => {
+        document.getElementById("searchInput").value = stock.name;
+        searchTerm = stock.name.toLowerCase();
+        box.style.display = "none";
+        applyFilters();
+      };
+      box.appendChild(item);
+    });
+
+    box.style.display = "block";
+  }
+
+  function getCurrentUserId(){
+    return localStorage.getItem("currentUserId");
+  }
+
+  function getWatchlistKey(){
+    const userId = getCurrentUserId();
+    return userId ? `watchlist_${userId}` : "watchlist_guest";
+  }
+
+  function getWatchlist(){
+    return JSON.parse(localStorage.getItem(getWatchlistKey())) || [];
+  }
+
+  function saveWatchlist(data){
+    localStorage.setItem(getWatchlistKey(), JSON.stringify(data));
+  }
+
+  function toggleWatchlist(element, stockName, symbol){
+    let watchlist = getWatchlist();
+    const index = watchlist.findIndex(item => item.symbol === symbol);
+
+    if(index > -1){
+      watchlist.splice(index, 1);
+      element.style.color = "#9aa9c2";
+    } else {
+      watchlist.push({ name: stockName, symbol: symbol });
+      element.style.color = "#ff4d6d";
+    }
+
+    saveWatchlist(watchlist);
+  }
+
+  function loadWatchlistUI(){
+    const watchlist = getWatchlist();
+
+    document.querySelectorAll(".card").forEach(card => {
+      const symbolEl = card.querySelector(".ticker");
+      const heartEl = card.querySelector(".heart");
+
+      if(!symbolEl || !heartEl) return;
+
+      const symbol = symbolEl.innerText.trim();
+      const found = watchlist.find(item => item.symbol === symbol);
+
+      heartEl.style.color = found ? "#ff4d6d" : "#9aa9c2";
+    });
+  }
+
+  function openWatchlist(){
+    window.location.href = "/wishlist";
+  }
+
+  function logout(){
+    localStorage.removeItem("currentUserId");
+    window.location.href = "/logout";
+  }
+
+  document.getElementById("searchInput").addEventListener("input", function(){
+    searchTerm = this.value.trim().toLowerCase();
+    showSuggestions(this.value);
+    applyFilters();
+  });
+
+  document.addEventListener("click", function(e){
+    const box = document.getElementById("suggestionsBox");
+    const search = document.querySelector(".search-wrapper");
+    if(search && !search.contains(e.target)){
+      box.style.display = "none";
+    }
+  });
+
+  window.addEventListener("load", function(){
+    updateCounts();
+    updateMarketStatus();
+    fetchPrices();
+    loadWatchlistUI();
+
+    setInterval(fetchPrices, 30000);
+    setInterval(updateMarketStatus, 60000);
+  });
+</script>
+</body>
+</html>
