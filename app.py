@@ -30,7 +30,9 @@ init_db()
 @app.route("/")
 def home():
     return send_from_directory(".", "loginsignup.html")
-
+@app.route('/sitemap.xml')
+def sitemap():
+    return send_from_directory('.', 'sitemap.xml')
 @app.route("/dashboard")
 def dashboard():
     return send_from_directory(".", "frontpage.html")
