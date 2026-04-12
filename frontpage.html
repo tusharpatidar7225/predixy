@@ -514,6 +514,136 @@
       .hero{padding:18px; border-radius:22px;}
       .grid{gap:14px;}
     }
+    @media (max-width: 768px){
+  .topbar{
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .hero-actions{
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .market-badge,
+  .watchlist-btn,
+  .search-wrapper{
+    width: 100%;
+    min-width: 100%;
+  }
+
+  .search{
+    width: 100%;
+  }
+
+  .sidebar ul{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    overflow: visible;
+    padding-right: 0;
+  }
+
+  .sidebar li{
+    flex: 1 1 calc(50% - 8px);
+    margin-bottom: 0;
+    justify-content: center;
+  }
+
+  .hero-stats{
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .grid{
+    grid-template-columns: 1fr;
+  }
+
+  .card{
+    min-height: auto;
+  }
+}
+
+@media (max-width: 480px){
+  .sidebar{
+    padding: 16px 12px;
+  }
+
+  .brand{
+    padding: 14px;
+    border-radius: 16px;
+  }
+
+  .brand h2{
+    font-size: 16px;
+  }
+
+  .brand p{
+    font-size: 11px;
+  }
+
+  .sidebar li{
+    flex: 1 1 100%;
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+
+  .main{
+    padding: 12px;
+  }
+
+  .hero{
+    padding: 14px;
+  }
+
+  .hero-copy h1{
+    font-size: 22px;
+  }
+
+  .hero-copy p{
+    font-size: 13px;
+  }
+
+  .hero-stats{
+    grid-template-columns: 1fr;
+  }
+
+  .stat-card{
+    padding: 14px;
+  }
+
+  .card{
+    padding: 16px;
+    border-radius: 18px;
+  }
+
+  .heart{
+    top: 14px;
+    right: 14px;
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+
+  .company h4{
+    font-size: 18px;
+    padding-right: 28px;
+  }
+
+  .pill{
+    font-size: 11px;
+    padding: 5px 8px;
+  }
+
+  .price-main{
+    font-size: 24px;
+  }
+
+  .price-change{
+    font-size: 12px;
+    padding: 6px 8px;
+  }
+}
   </style>
 </head>
 <body>
