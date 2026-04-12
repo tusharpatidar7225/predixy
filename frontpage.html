@@ -489,11 +489,22 @@
       background:rgba(10,19,33,0.7);
     }
     #userNameBadge{
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
+     max-width: 160px;
+     overflow: hidden;
+     text-overflow: ellipsis;
+     white-space: nowrap;
+     }
+    .user-badge{
+     display:flex;
+     align-items:center;
+     gap:8px;
+     }
+
+    .user-icon{
+    width:16px;
+    height:16px;
+    opacity:0.8;
+    }
     @media (max-width: 1080px){
       .sidebar{width:240px;}
       .main{margin-left:240px;}
@@ -696,7 +707,10 @@
         <div class="hero-actions">
   <div id="marketStatus" class="market-badge">Checking...</div>
   <button class="market-badge watchlist-btn" onclick="openWatchlist()">❤ Watchlist</button>
-  <div id="userNameBadge" class="market-badge">User</div>
+  <div id="userNameBadge" class="market-badge user-badge">
+  <span id="userNameText">User</span>
+  <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon">
+  </div>
 
 
   <div class="search-wrapper">
@@ -1175,15 +1189,15 @@
   }
   function loadCurrentUsername(){
   const username = localStorage.getItem("currentUsername");
-  const badge = document.getElementById("userNameBadge");
+  const badge = document.getElementById("userNameText");
 
   if (!badge) return;
 
   if (username && username.trim() !== "") {
-    badge.textContent = username;
-  } else {
-    badge.textContent = "User";
-  }
+    text.textContent = username;
+} else {
+  text.textContent = "User";
+}
 }
   function openWatchlist(){
     window.location.href = "/wishlist";
