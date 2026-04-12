@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="google-site-verification" content="52LL5GIZTKYsB5pj4x-SW5zgAP3VZcDfVkT8dmSMIS4" />
-<title>Login & Signup</title>
+<title>Welcome to Predixy</title>
 
 <style>
 
@@ -249,9 +249,6 @@ body{
 
 <!-- ===== PARTICLES JS LIBRARY (IMPORTANT: BEFORE CONFIG) ===== -->
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
-<script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-
 <script>
 /* ===== PARTICLE CONFIGURATION ===== */
 particlesJS("particles-js", {
@@ -413,7 +410,7 @@ function signup(){
    if(data.user_id){
   localStorage.setItem("currentUserId", data.user_id);
   showMessage("signupMessage", "✅ Account created successfully! Redirecting to dashboard...", "success");
-
+  localStorage.setItem("currentUsername", username);
   setTimeout(() => {
     window.location.href = "/dashboard";
   }, 1000);
@@ -445,6 +442,7 @@ function login(){
   .then(data => {
     if(data.user_id){
       localStorage.setItem("currentUserId", data.user_id);
+      localStorage.setItem("currentUsername", data.username);
       showMessage("loginMessage", "✅ Login Successful! Redirecting...", "success");
 
       setTimeout(() => {
