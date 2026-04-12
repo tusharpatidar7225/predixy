@@ -489,11 +489,15 @@
       background:rgba(10,19,33,0.7);
     }
     #userNameBadge{
-     max-width: 160px;
-     overflow: hidden;
-     text-overflow: ellipsis;
-     white-space: nowrap;
-     }
+  max-width: 160px;
+  min-width: 160px;
+  overflow: hidden;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
     .user-badge{
      display:flex;
      align-items:center;
