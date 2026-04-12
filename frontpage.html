@@ -485,7 +485,12 @@
       text-align:center;
       background:rgba(10,19,33,0.7);
     }
-
+    #userNameBadge{
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
     @media (max-width: 1080px){
       .sidebar{width:240px;}
       .main{margin-left:240px;}
@@ -644,6 +649,11 @@
     padding: 6px 8px;
   }
 }
+    @media (max-width: 768px){
+  #userNameBadge{
+    max-width: 100%;
+  }
+}
   </style>
 </head>
 <body>
@@ -682,7 +692,7 @@
 
         <div class="hero-actions">
   <div id="marketStatus" class="market-badge">Checking...</div>
-
+      <div id="userNameBadge" class="market-badge">User</div>
   <button class="market-badge watchlist-btn" onclick="openWatchlist()">❤ Watchlist</button>
 
   <div class="search-wrapper">
@@ -1159,13 +1169,25 @@
       heartEl.style.color = found ? "#ff4d6d" : "#9aa9c2";
     });
   }
+  function loadCurrentUsername(){
+  const username = localStorage.getItem("currentUsername");
+  const badge = document.getElementById("userNameBadge");
 
+  if (!badge) return;
+
+  if (username && username.trim() !== "") {
+    badge.textContent = username;
+  } else {
+    badge.textContent = "User";
+  }
+}
   function openWatchlist(){
     window.location.href = "/wishlist";
   }
 
   function logout(){
     localStorage.removeItem("currentUserId");
+    localStorage.removeItem("currentUsername");
     window.location.href = "/logout";
   }
 
