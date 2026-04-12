@@ -215,7 +215,7 @@
       font-weight:700;
       background:rgba(15,23,42,0.74);
       color:#cde7ff;
-      min-width:145px;
+      min-width:auto;
       text-align:center;
     }
 .watchlist-btn{
@@ -491,16 +491,16 @@
     #userNameBadge{
   display: inline-flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 8px;
-  padding: 6px 12px; /* thoda spacing for premium look */
-  width: auto; /* 🔥 ye main fix hai */
+  padding: 10px 14px;
+  width: fit-content;
+  min-width: unset;
 }
     
 #userNameText{
-  flex: 1;
+  flex: 0 0 auto;
   text-align: right;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
     .user-icon{
