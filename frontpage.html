@@ -535,12 +535,72 @@
     height:16px;
     opacity:0.8;
     }
+
+    .mobile-menu-btn{
+      display:none;
+      width:48px;
+      height:48px;
+      border:none;
+      border-radius:14px;
+      background:rgba(15,23,42,0.74);
+      border:1px solid var(--line);
+      color:var(--text);
+      font-size:24px;
+      cursor:pointer;
+      align-items:center;
+      justify-content:center;
+      box-shadow:var(--shadow);
+      flex:0 0 auto;
+    }
+
+    .sidebar-overlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      background:rgba(2, 8, 18, 0.55);
+      backdrop-filter:blur(3px);
+      z-index:9;
+    }
     @media (max-width: 1080px){
       .sidebar{width:240px;}
       .main{margin-left:240px;}
     }
 
-    
+    @media (max-width: 880px){
+      body{
+        display:block;
+      }
+
+      .mobile-menu-btn{
+        display:inline-flex;
+      }
+
+      .sidebar{
+        position:fixed;
+        top:0;
+        left:-290px;
+        width:280px;
+        height:100vh;
+        border-right:1px solid var(--line);
+        border-bottom:none;
+        transition:left .28s ease;
+        z-index:20;
+      }
+
+      .sidebar.open{
+        left:0;
+      }
+
+      .sidebar-overlay.show{
+        display:block;
+      }
+
+      .main{
+        margin-left:0;
+        width:100%;
+        padding:18px;
+      }
+    }
 
     @media (max-width: 560px){
       .hero-copy h1{font-size:24px;}
@@ -552,28 +612,46 @@
     }
     @media (max-width: 768px){
   .topbar{
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .hero-copy{
+    flex: 1 1 100%;
+    order: 2;
   }
 
   .hero-actions{
-    width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    width: calc(100% - 60px);
+    margin-left: 0;
+    justify-content: flex-end;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    order: 1;
   }
 
   .market-badge,
   .watchlist-btn,
+  #userNameBadge{
+    width: auto;
+    min-width: auto;
+  }
+
   .search-wrapper{
     width: 100%;
-    min-width: 100%;
+    order: 4;
+    flex-basis: 100%;
   }
 
   .search{
     width: 100%;
   }
-.hero-stats{
-    grid-template-columns: 1fr 1fr;
+
+  .hero-stats{
+    grid-template-columns: 1fr;
   }
 
   .grid{
@@ -587,7 +665,21 @@
 
 @media (max-width: 480px){
   .sidebar{
+    width:270px;
+    left:-280px;
     padding: 16px 12px;
+  }
+
+  .hero-actions{
+    width: calc(100% - 56px);
+    gap: 8px;
+  }
+
+  .market-badge,
+  .watchlist-btn,
+  #userNameBadge{
+    font-size: 12px;
+    padding: 9px 12px;
   }
 
   .brand{
@@ -670,203 +762,6 @@
     max-width: 100%;
   }
 }
-  
-@media (max-width: 1080px){
-  .sidebar{
-    width:220px;
-    padding:18px 14px;
-  }
-
-  .main{
-    margin-left:220px;
-    padding:18px;
-  }
-
-  .hero-actions{
-    width:100%;
-    justify-content:flex-start;
-  }
-
-  .hero-stats{
-    grid-template-columns:repeat(2, minmax(160px, 1fr));
-  }
-
-  .grid{
-    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
-    gap:10px;
-  }
-}
-
-@media (max-width: 768px){
-  body{
-    display:flex;
-    min-width:980px;
-    overflow-x:auto;
-  }
-
-  .sidebar{
-    position:fixed;
-    top:0;
-    left:0;
-    width:220px;
-    height:100vh;
-    padding:18px 14px;
-    border-right:1px solid var(--line);
-    border-bottom:none;
-    display:flex;
-    flex-direction:column;
-    z-index:10;
-  }
-
-  .sidebar ul{
-    display:block;
-    overflow:auto;
-    padding-right:4px;
-  }
-
-  .sidebar li{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    margin-bottom:8px;
-    padding:13px 15px;
-  }
-
-  .main{
-    margin-left:220px;
-    width:calc(100% - 220px);
-    min-width:760px;
-    padding:18px;
-  }
-
-  .topbar{
-    display:flex;
-    flex-direction:row;
-    align-items:flex-start;
-    justify-content:space-between;
-    gap:18px;
-    flex-wrap:wrap;
-  }
-
-  .hero-copy{
-    flex:1 1 320px;
-  }
-
-  .hero-actions{
-    width:520px;
-    margin-left:auto;
-    justify-content:flex-end;
-    flex-direction:row;
-    align-items:center;
-  }
-
-  .market-badge,
-  .watchlist-btn{
-    width:auto;
-    min-width:auto;
-  }
-
-  .search-wrapper{
-    width:100%;
-  }
-
-  .search{
-    width:100%;
-  }
-
-  .hero-stats{
-    grid-template-columns:repeat(2, minmax(180px, 1fr));
-    gap:14px;
-  }
-
-  .grid{
-    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
-    gap:10px;
-  }
-
-  .card{
-    min-height:170px;
-  }
-
-  #userNameBadge{
-    max-width:max-content;
-  }
-}
-
-@media (max-width: 480px){
-  body{
-    min-width:960px;
-  }
-
-  .sidebar{
-    width:210px;
-    padding:16px 12px;
-  }
-
-  .main{
-    margin-left:210px;
-    min-width:750px;
-    padding:14px;
-  }
-
-  .brand{
-    padding:14px;
-    border-radius:16px;
-  }
-
-  .brand h2{
-    font-size:16px;
-  }
-
-  .brand p{
-    font-size:11px;
-  }
-
-  .hero{
-    padding:16px;
-    border-radius:22px;
-  }
-
-  .hero-copy h1{
-    font-size:24px;
-  }
-
-  .hero-copy p{
-    font-size:13px;
-  }
-
-  .stat-card{
-    padding:14px;
-  }
-
-  .card{
-    padding:16px;
-    border-radius:18px;
-  }
-
-  .company h4{
-    font-size:18px;
-    padding-right:28px;
-  }
-
-  .price-main{
-    font-size:24px;
-  }
-
-  .price-change{
-    font-size:12px;
-    padding:6px 8px;
-  }
-
-  .heart{
-    top:14px;
-    right:14px;
-    width:34px;
-    height:34px;
-    font-size:16px;
-  }
-}
-
   </style>
 </head>
 <body>
@@ -895,9 +790,12 @@
     <button class="logout" onclick="logout()">Logout</button>
   </div>
 
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileMenu()"></div>
+
   <div class="main">
     <section class="hero">
       <div class="topbar">
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()">☰</button>
         <div class="hero-copy">
           <h1>Market Dashboard</h1>
           <p>Display stocks sector-wise in a modern and polished dashboard layout. Include real-time search functionality and allow users to open each stock for detailed analytics, prediction insights, charts, and performance data.</p>
@@ -1196,6 +1094,22 @@
   let currentCategory = "All";
   let searchTerm = "";
 
+  function toggleMobileMenu(){
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    if(!sidebar || !overlay) return;
+    sidebar.classList.toggle("open");
+    overlay.classList.toggle("show");
+  }
+
+  function closeMobileMenu(){
+    const sidebar = document.querySelector(".sidebar");
+    const overlay = document.getElementById("sidebarOverlay");
+    if(!sidebar || !overlay) return;
+    sidebar.classList.remove("open");
+    overlay.classList.remove("show");
+  }
+
   function getAllCards(){
     return [...document.querySelectorAll("#stockGrid .card")];
   }
@@ -1233,6 +1147,10 @@
     if(el) el.classList.add("active");
 
     applyFilters();
+
+    if(window.innerWidth <= 880){
+      closeMobileMenu();
+    }
   }
 
   function openStock(card){
@@ -1417,8 +1335,26 @@
   document.addEventListener("click", function(e){
     const box = document.getElementById("suggestionsBox");
     const search = document.querySelector(".search-wrapper");
+    const sidebar = document.querySelector(".sidebar");
+    const menuBtn = document.getElementById("mobileMenuBtn");
+
     if(search && !search.contains(e.target)){
       box.style.display = "none";
+    }
+
+    if(window.innerWidth <= 880 && sidebar && sidebar.classList.contains("open")) {
+      const clickedInsideSidebar = sidebar.contains(e.target);
+      const clickedMenuBtn = menuBtn && menuBtn.contains(e.target);
+      const clickedOverlay = e.target.id === "sidebarOverlay";
+      if(!clickedInsideSidebar && !clickedMenuBtn && !clickedOverlay){
+        closeMobileMenu();
+      }
+    }
+  });
+
+  window.addEventListener("resize", function(){
+    if(window.innerWidth > 880){
+      closeMobileMenu();
     }
   });
 
