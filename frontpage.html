@@ -611,55 +611,155 @@
       .grid{gap:14px;}
     }
     @media (max-width: 768px){
-  .topbar{
-    flex-direction: row;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
+  .hero{
+    padding:16px;
   }
 
-  .hero-copy{
-    flex: 1 1 100%;
-    order: 2;
+  .topbar{
+    display:grid;
+    grid-template-columns:48px 1fr;
+    grid-template-areas:
+      "menu badges"
+      "search search"
+      "copy copy";
+    align-items:start;
+    gap:14px;
+  }
+
+  .mobile-menu-btn{
+    grid-area:menu;
+    width:48px;
+    height:48px;
+    display:grid;
+    place-items:center;
+    font-size:24px;
   }
 
   .hero-actions{
-    width: calc(100% - 60px);
-    margin-left: 0;
-    justify-content: flex-end;
-    flex-direction: row;
-    align-items: center;
-    gap: 10px;
-    order: 1;
+    grid-area:badges;
+    width:100%;
+    margin-left:0;
+    display:grid;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:8px;
+    align-items:center;
   }
 
   .market-badge,
   .watchlist-btn,
   #userNameBadge{
-    width: auto;
-    min-width: auto;
+    width:100%;
+    min-width:0;
+    padding:9px 10px;
+    font-size:12px;
+    justify-content:center;
+    text-align:center;
+    white-space:nowrap;
+  }
+
+  #userNameBadge{
+    gap:6px;
+    overflow:hidden;
+  }
+
+  #userNameText{
+    overflow:hidden;
+    text-overflow:ellipsis;
   }
 
   .search-wrapper{
-    width: 100%;
-    order: 4;
-    flex-basis: 100%;
+    grid-area:search;
+    width:100%;
+    order:initial;
+    flex-basis:auto;
+  }
+
+  .hero-copy{
+    grid-area:copy;
+    flex:unset;
+    order:initial;
+  }
+
+  .hero-copy h1{
+    font-size:22px;
+    margin-bottom:8px;
+  }
+
+  .hero-copy p{
+    font-size:13px;
+    line-height:1.55;
   }
 
   .search{
-    width: 100%;
+    width:100%;
+    padding:14px 16px 14px 40px;
   }
 
   .hero-stats{
-    grid-template-columns: 1fr;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:12px;
+  }
+
+  .stat-card{
+    padding:14px;
+    min-height:140px;
+  }
+
+  .stat-value{
+    font-size:18px;
+  }
+
+  .stat-sub{
+    font-size:12px;
+    line-height:1.45;
+  }
+
+  .section-head{
+    margin:8px 2px 14px;
   }
 
   .grid{
-    grid-template-columns: 1fr;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:12px;
   }
 
   .card{
-    min-height: auto;
+    min-height:180px;
+    padding:16px;
+    border-radius:18px;
+  }
+
+  .company h4{
+    font-size:16px;
+    margin-bottom:8px;
+    padding-right:30px;
+  }
+
+  .meta-row{
+    gap:6px;
+  }
+
+  .pill{
+    font-size:10px;
+    padding:5px 8px;
+  }
+
+  .price-main{
+    font-size:19px;
+    margin-bottom:6px;
+  }
+
+  .price-change{
+    font-size:11px;
+    padding:6px 8px;
+  }
+
+  .heart{
+    top:12px;
+    right:12px;
+    width:32px;
+    height:32px;
+    font-size:15px;
   }
 }
 
@@ -671,15 +771,15 @@
   }
 
   .hero-actions{
-    width: calc(100% - 56px);
-    gap: 8px;
+    grid-template-columns:repeat(3, minmax(0,1fr));
+    gap:6px;
   }
 
   .market-badge,
   .watchlist-btn,
   #userNameBadge{
-    font-size: 12px;
-    padding: 9px 12px;
+    font-size: 11px;
+    padding: 8px 8px;
   }
 
   .brand{
@@ -718,16 +818,24 @@
   }
 
   .hero-stats{
-    grid-template-columns: 1fr;
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:10px;
   }
 
   .stat-card{
-    padding: 14px;
+    padding: 12px;
+    min-height:132px;
+  }
+
+  .grid{
+    grid-template-columns:repeat(2, minmax(0,1fr));
+    gap:10px;
   }
 
   .card{
-    padding: 16px;
+    padding: 14px;
     border-radius: 18px;
+    min-height:170px;
   }
 
   .heart{
@@ -759,7 +867,7 @@
 }
     @media (max-width: 768px){
   #userNameBadge{
-    max-width: 100%;
+    max-width:100%;
   }
 }
   </style>
