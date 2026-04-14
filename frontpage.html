@@ -870,103 +870,6 @@
     max-width:100%;
   }
 }
-    .user-dropdown-wrap{
-  position:relative;
-  margin-left:auto;
-}
-
-.user-dropdown-btn{
-  cursor:pointer;
-}
-
-.user-dropdown-menu{
-  position:absolute;
-  top:calc(100% + 8px);
-  right:0;
-  min-width:190px;
-  padding:8px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,0.08);
-  background:rgba(10,18,32,0.98);
-  box-shadow:0 18px 40px rgba(0,0,0,0.35);
-  display:none;
-  z-index:50;
-}
-
-.user-dropdown-menu.show{
-  display:block;
-}
-
-.user-dropdown-item{
-  width:100%;
-  border:none;
-  background:transparent;
-  color:var(--text);
-  text-align:left;
-  padding:10px 12px;
-  border-radius:12px;
-  font-size:13px;
-  cursor:pointer;
-}
-
-.user-dropdown-item:hover{
-  background:rgba(255,255,255,0.06);
-}
-
-.user-dropdown-item:disabled{
-  opacity:1;
-  cursor:default;
-}
-
-.user-dropdown-item:disabled:hover{
-  background:transparent;
-}
-
-.dropdown-dot{
-  display:inline-block;
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#ef4444;
-  margin-right:8px;
-  vertical-align:middle;
-}
-
-@media (max-width: 768px){
-  .hero-actions{
-    grid-area:badges;
-    width:100%;
-    margin-left:0;
-    display:flex;
-    flex-direction:column;
-    align-items:flex-end;
-    gap:10px;
-  }
-
-  .user-dropdown-wrap{
-    width:auto;
-    align-self:flex-end;
-  }
-
-  .search-wrapper{
-    width:100%;
-  }
-
-  .watchlist-btn{
-    display:none !important;
-  }
-
-  #marketStatus{
-    display:none !important;
-  }
-
-  #userNameBadge{
-    width:auto;
-    min-width:auto;
-    max-width:100%;
-    justify-content:center;
-  }
-}
   </style>
 </head>
 <body>
@@ -1006,24 +909,14 @@
           <p>Display stocks sector-wise in a modern and polished dashboard layout. Include real-time search functionality and allow users to open each stock for detailed analytics, prediction insights, charts, and performance data.</p>
         </div>
 
-       <div class="hero-actions">
-  <div class="user-dropdown-wrap">
-    <button id="userNameBadge" class="market-badge user-badge user-dropdown-btn" onclick="toggleUserDropdown(event)">
-      <span id="userNameText">User</span>
-      <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon">
-    </button>
-     <span id="marketStatusDropdownText">Checking...</span>
-    <div id="userDropdownMenu" class="user-dropdown-menu">
-      <button class="user-dropdown-item" type="button" disabled>
-        <span class="dropdown-dot"></span>
-       
-      </button>
-
-      <button class="user-dropdown-item" type="button" onclick="openWatchlist()">
-        ❤ Watchlist
-      </button>
-    </div>
+        <div class="hero-actions">
+  <div id="marketStatus" class="market-badge">Checking...</div>
+  <button class="market-badge watchlist-btn" onclick="openWatchlist()">❤ Watchlist</button>
+  <div id="userNameBadge" class="market-badge user-badge">
+  <span id="userNameText">User</span>
+  <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon">
   </div>
+
 
   <div class="search-wrapper">
     <span class="search-icon">⌕</span>
@@ -1572,24 +1465,7 @@
       closeMobileMenu();
     }
   });
-function toggleUserDropdown(event){
-  event.stopPropagation();
-  document.getElementById("userDropdownMenu").classList.toggle("show");
-}
 
-document.addEventListener("click", function(e){
-  const menu = document.getElementById("userDropdownMenu");
-  const btn = document.getElementById("userNameBadge");
-  if(menu && btn && !btn.contains(e.target)){
-    menu.classList.remove("show");
-  }
-});
-  let statusText = "Market Closed"; // ya dynamic logic
-
-let dropdownText = document.getElementById("marketStatusDropdownText");
-if(dropdownText){
-  dropdownText.innerText = statusText;
-}
   window.addEventListener("load", function(){
     updateCounts();
     updateMarketStatus();
