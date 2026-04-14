@@ -541,17 +541,18 @@
     }
 
     @media (max-width: 880px){
-      body{display:block;}
-      .sidebar{
-        position:static;
-        width:100%;
-        height:auto;
-        border-right:none;
-        border-bottom:1px solid var(--line);
+      body{
+        display:block;
       }
+
+      .sidebar{
+        display:none;
+      }
+
       .main{
         margin-left:0;
-        padding:18px;
+        width:100%;
+        padding:14px;
       }
     }
 
@@ -586,19 +587,6 @@
     width: 100%;
   }
 
-  .sidebar ul{
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    overflow: visible;
-    padding-right: 0;
-  }
-
-  .sidebar li{
-    flex: 1 1 calc(50% - 8px);
-    margin-bottom: 0;
-    justify-content: center;
-  }
 
   .hero-stats{
     grid-template-columns: 1fr 1fr;
@@ -614,10 +602,6 @@
 }
 
 @media (max-width: 480px){
-  .sidebar{
-    padding: 16px 12px;
-  }
-
   .brand{
     padding: 14px;
     border-radius: 16px;
@@ -629,12 +613,6 @@
 
   .brand p{
     font-size: 11px;
-  }
-
-  .sidebar li{
-    flex: 1 1 100%;
-    padding: 11px 12px;
-    font-size: 14px;
   }
 
   .main{
