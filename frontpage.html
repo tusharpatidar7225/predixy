@@ -540,21 +540,7 @@
       .main{margin-left:240px;}
     }
 
-    @media (max-width: 880px){
-      body{
-        display:block;
-      }
-
-      .sidebar{
-        display:none;
-      }
-
-      .main{
-        margin-left:0;
-        width:100%;
-        padding:14px;
-      }
-    }
+    
 
     @media (max-width: 560px){
       .hero-copy h1{font-size:24px;}
@@ -586,9 +572,7 @@
   .search{
     width: 100%;
   }
-
-
-  .hero-stats{
+.hero-stats{
     grid-template-columns: 1fr 1fr;
   }
 
@@ -602,6 +586,10 @@
 }
 
 @media (max-width: 480px){
+  .sidebar{
+    padding: 16px 12px;
+  }
+
   .brand{
     padding: 14px;
     border-radius: 16px;
@@ -613,6 +601,12 @@
 
   .brand p{
     font-size: 11px;
+  }
+
+  .sidebar li{
+    flex: 1 1 100%;
+    padding: 11px 12px;
+    font-size: 14px;
   }
 
   .main{
@@ -676,6 +670,203 @@
     max-width: 100%;
   }
 }
+  
+@media (max-width: 1080px){
+  .sidebar{
+    width:220px;
+    padding:18px 14px;
+  }
+
+  .main{
+    margin-left:220px;
+    padding:18px;
+  }
+
+  .hero-actions{
+    width:100%;
+    justify-content:flex-start;
+  }
+
+  .hero-stats{
+    grid-template-columns:repeat(2, minmax(160px, 1fr));
+  }
+
+  .grid{
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:10px;
+  }
+}
+
+@media (max-width: 768px){
+  body{
+    display:flex;
+    min-width:980px;
+    overflow-x:auto;
+  }
+
+  .sidebar{
+    position:fixed;
+    top:0;
+    left:0;
+    width:220px;
+    height:100vh;
+    padding:18px 14px;
+    border-right:1px solid var(--line);
+    border-bottom:none;
+    display:flex;
+    flex-direction:column;
+    z-index:10;
+  }
+
+  .sidebar ul{
+    display:block;
+    overflow:auto;
+    padding-right:4px;
+  }
+
+  .sidebar li{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:8px;
+    padding:13px 15px;
+  }
+
+  .main{
+    margin-left:220px;
+    width:calc(100% - 220px);
+    min-width:760px;
+    padding:18px;
+  }
+
+  .topbar{
+    display:flex;
+    flex-direction:row;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:18px;
+    flex-wrap:wrap;
+  }
+
+  .hero-copy{
+    flex:1 1 320px;
+  }
+
+  .hero-actions{
+    width:520px;
+    margin-left:auto;
+    justify-content:flex-end;
+    flex-direction:row;
+    align-items:center;
+  }
+
+  .market-badge,
+  .watchlist-btn{
+    width:auto;
+    min-width:auto;
+  }
+
+  .search-wrapper{
+    width:100%;
+  }
+
+  .search{
+    width:100%;
+  }
+
+  .hero-stats{
+    grid-template-columns:repeat(2, minmax(180px, 1fr));
+    gap:14px;
+  }
+
+  .grid{
+    grid-template-columns:repeat(auto-fill, minmax(220px, 1fr));
+    gap:10px;
+  }
+
+  .card{
+    min-height:170px;
+  }
+
+  #userNameBadge{
+    max-width:max-content;
+  }
+}
+
+@media (max-width: 480px){
+  body{
+    min-width:960px;
+  }
+
+  .sidebar{
+    width:210px;
+    padding:16px 12px;
+  }
+
+  .main{
+    margin-left:210px;
+    min-width:750px;
+    padding:14px;
+  }
+
+  .brand{
+    padding:14px;
+    border-radius:16px;
+  }
+
+  .brand h2{
+    font-size:16px;
+  }
+
+  .brand p{
+    font-size:11px;
+  }
+
+  .hero{
+    padding:16px;
+    border-radius:22px;
+  }
+
+  .hero-copy h1{
+    font-size:24px;
+  }
+
+  .hero-copy p{
+    font-size:13px;
+  }
+
+  .stat-card{
+    padding:14px;
+  }
+
+  .card{
+    padding:16px;
+    border-radius:18px;
+  }
+
+  .company h4{
+    font-size:18px;
+    padding-right:28px;
+  }
+
+  .price-main{
+    font-size:24px;
+  }
+
+  .price-change{
+    font-size:12px;
+    padding:6px 8px;
+  }
+
+  .heart{
+    top:14px;
+    right:14px;
+    width:34px;
+    height:34px;
+    font-size:16px;
+  }
+}
+
   </style>
 </head>
 <body>
