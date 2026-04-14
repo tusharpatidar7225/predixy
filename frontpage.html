@@ -910,12 +910,48 @@
         </div>
 
         <div class="hero-actions">
-  <div id="marketStatus" class="market-badge">Checking...</div>
-  <button class="market-badge watchlist-btn" onclick="openWatchlist()">❤ Watchlist</button>
-  <div id="userNameBadge" class="market-badge user-badge">
-  <span id="userNameText">User</span>
-  <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon">
+
+  <!-- RIGHT STACK -->
+  <div style="margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+
+    <!-- USER -->
+    <div style="position:relative;">
+      <div id="userNameBadge" class="market-badge user-badge" onclick="toggleUserDropdown()">
+        <span id="userNameText">User</span>
+        <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" class="user-icon">
+      </div>
+
+      <!-- DROPDOWN -->
+      <div id="userDropdown" style="
+        display:none;
+        position:absolute;
+        right:0;
+        top:110%;
+        background:#0b1c2f;
+        border-radius:10px;
+        padding:10px;
+        min-width:140px;
+        box-shadow:0 10px 30px rgba(0,0,0,0.4);
+      ">
+        <div onclick="openWatchlist()" style="padding:8px; cursor:pointer;">
+          ❤ Watchlist
+        </div>
+      </div>
+    </div>
+
+    <!-- MARKET -->
+    <div id="marketStatus" class="market-badge">Checking...</div>
+
   </div>
+
+  <!-- SEARCH SAME RAKH -->
+  <div class="search-wrapper">
+    <span class="search-icon">⌕</span>
+    <input class="search" id="searchInput" placeholder="Search stock or company name" autocomplete="off" />
+    <div id="suggestionsBox" class="suggestions"></div>
+  </div>
+
+</div>
 
 
   <div class="search-wrapper">
@@ -1465,6 +1501,17 @@
       closeMobileMenu();
     }
   });
+  function toggleUserDropdown(){
+  let d = document.getElementById("userDropdown");
+  d.style.display = d.style.display === "block" ? "none" : "block";
+}
+
+document.addEventListener("click", function(e){
+  if(!e.target.closest("#userNameBadge")){
+    let d = document.getElementById("userDropdown");
+    if(d) d.style.display = "none";
+  }
+});
 
   window.addEventListener("load", function(){
     updateCounts();
