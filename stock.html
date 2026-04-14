@@ -195,13 +195,59 @@
     }
 
     .chart-card{
-      border:1px solid var(--line);
-      border-radius:28px;
-      padding:20px;
-      background:linear-gradient(180deg, rgba(16,28,46,0.95), rgba(9,16,29,0.98));
-      box-shadow:var(--shadow);
-      margin-bottom:18px;
-    }
+  position: relative;
+  overflow: hidden;
+  border:1px solid var(--line);
+  border-radius:28px;
+  padding:20px;
+
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  box-shadow:var(--shadow);
+  transition:0.3s ease;
+}
+
+/* 🔥 BLUE GLOW EFFECT */
+.chart-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 88% 82%, rgba(53,155,255,0.20), transparent 22%),
+    radial-gradient(circle at 78% 70%, rgba(0,212,255,0.10), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+  pointer-events:none;
+}
+
+/* ✨ SHINE EFFECT */
+.chart-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+  transform:translateX(-120%);
+  transition:transform 0.6s ease;
+}
+
+/* HOVER */
+.chart-card:hover{
+  transform:translateY(-4px);
+  background: rgba(255,255,255,0.08);
+  backdrop-filter: blur(18px);
+}
+
+.chart-card:hover::after{
+  transform:translateX(120%);
+}
+
+/* CONTENT ABOVE */
+.chart-card > *{
+  position:relative;
+  z-index:2;
+}
 
     .chart-head{
       display:flex;
@@ -246,12 +292,52 @@
     }
 
     .info-card{
-      padding:18px;
-      border-radius:22px;
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(15,27,45,0.92), rgba(10,19,33,0.92));
-      box-shadow:var(--shadow);
-    }
+  position: relative;
+  overflow: hidden;
+  padding:18px;
+  border-radius:22px;
+  border:1px solid var(--line);
+
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  transition:0.3s ease;
+}
+
+.info-card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  border-radius:inherit;
+  background:
+    radial-gradient(circle at 85% 80%, rgba(53,155,255,0.16), transparent 24%),
+    linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+  pointer-events:none;
+}
+
+.info-card::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transform:translateX(-120%);
+  transition:transform 0.6s ease;
+}
+
+.info-card:hover{
+  transform:translateY(-5px);
+  background: rgba(255,255,255,0.08);
+}
+
+.info-card:hover::after{
+  transform:translateX(120%);
+}
+
+.info-card > *{
+  position:relative;
+  z-index:2;
+}
 
     .info-label{
       font-size:12px;
