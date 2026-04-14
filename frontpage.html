@@ -1583,6 +1583,12 @@ document.addEventListener("click", function(e){
     menu.classList.remove("show");
   }
 });
+  let statusText = "Market Closed"; // ya dynamic logic
+
+let dropdownText = document.getElementById("marketStatusDropdownText");
+if(dropdownText){
+  dropdownText.innerText = statusText;
+}
   window.addEventListener("load", function(){
     updateCounts();
     updateMarketStatus();
