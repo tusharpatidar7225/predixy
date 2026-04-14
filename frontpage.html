@@ -357,6 +357,18 @@
 
   transition: 0.3s ease;
 }
+    .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at 88% 82%, rgba(53, 155, 255, 0.20), transparent 22%),
+    radial-gradient(circle at 78% 70%, rgba(0, 212, 255, 0.10), transparent 28%),
+    linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+  opacity: 1;
+  pointer-events: none;
+}
 
 /* SHINE EFFECT (same as button) */
 .card::after {
