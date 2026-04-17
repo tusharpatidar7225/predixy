@@ -8,7 +8,11 @@
 
 <style>
 
-/* ===== GLOBAL RESET ===== */
+/* ================================================
+         GLOBAL RESET
+   - Remove default margin/padding from all elements
+   - Use border-box so padding doesn't affect width
+================================================ */
 *{
     margin:0;
     padding:0;
@@ -16,17 +20,26 @@
     font-family:'Segoe UI',sans-serif;
 }
 
-/* ===== BODY STYLE ===== */
+/* ================================================
+         BODY STYLE
+   - Full viewport height, centered content
+   - Dark background so particles are visible
+   - overflow:hidden prevents scrollbar from particles
+================================================ */
 body{
     height:100vh;
     display:flex;
     align-items:center;
     justify-content:center;
-    background:#0f2027;   /* Dark background for particle visibility */
+    background:#0f2027;
     overflow:hidden;
 }
 
-/* ===== PARTICLE BACKGROUND LAYER ===== */
+/* ================================================
+         PARTICLE BACKGROUND LAYER
+   - Fixed so it covers entire screen always
+   - z-index:0 keeps it behind the form container
+================================================ */
 #particles-js{
     position:fixed;
     width:100%;
@@ -36,39 +49,53 @@ body{
     z-index:0;   /* Important: keep 0, not -1 */
 }
 
-/* ===== MAIN GLASS CONTAINER ===== */
+/* ================================================
+         MAIN GLASS CONTAINER
+   - Glassmorphism effect using backdrop-filter
+   - z-index:2 keeps it above the particles layer
+   - slideUp animation plays when page loads
+================================================ */
 .container{
     position:relative;
     z-index:2;
-    width:min(380px, 92vw);
+    width:min(380px, 92vw);   /* Responsive width */
     padding:40px 24px;
     border-radius:20px;
     text-align:center;
-    background:rgba(255,255,255,0.08);
-    backdrop-filter:blur(18px);
+    background:rgba(255,255,255,0.08);   /* Semi-transparent white */
+    backdrop-filter:blur(18px);           /* Frosted glass effect */
     box-shadow:0 20px 50px rgba(0,0,0,0.6);
     animation:slideUp 0.8s ease forwards;
 }
 
-/* ===== SLIDE UP ANIMATION ===== */
+/* ================================================
+         SLIDE UP ANIMATION
+   - Container fades in and slides up on page load
+================================================ */
 @keyframes slideUp{
     from{
         opacity:0;
-        transform:translateY(40px);
+        transform:translateY(40px);   /* Start 40px below */
     }
     to{
         opacity:1;
-        transform:translateY(0);
+        transform:translateY(0);      /* End at normal position */
     }
 }
 
-/* ===== HEADING ===== */
+/* ================================================
+         HEADING STYLE
+================================================ */
 .container h2{
     color:#fff;
     margin-bottom:25px;
 }
 
-/* ===== INPUT STYLE ===== */
+/* ================================================
+         INPUT FIELD STYLE
+   - Full width, rounded corners
+   - Smooth transition for focus glow effect
+================================================ */
 .input-box{
     width:100%;
     padding:12px;
@@ -80,38 +107,52 @@ body{
     transition:0.3s;
 }
 
-/* ===== INPUT FOCUS GLOW ===== */
+/* ================================================
+         INPUT FOCUS GLOW
+   - Green glow appears when user clicks on input
+================================================ */
 .input-box:focus{
     box-shadow:0 0 10px #00e676;
 }
 
-/* ===== BUTTON STYLE ===== */
+/* ================================================
+         BUTTON STYLE
+   - Full width, green background
+   - Bold text with pointer cursor
+================================================ */
 .btn{
     width:100%;
     padding:12px;
     margin-top:15px;
     border:none;
     border-radius:10px;
-    background:#00e676;
+    background:#00e676;   /* Brand green color */
     font-size:16px;
     cursor:pointer;
     font-weight:bold;
     transition:0.3s;
 }
 
-/* ===== BUTTON HOVER EFFECT ===== */
+/* ================================================
+         BUTTON HOVER EFFECT
+   - Lifts up and shows green glow on hover
+================================================ */
 .btn:hover{
     transform:translateY(-3px);
     box-shadow:0 10px 25px rgba(0,230,118,0.5);
 }
 
-/* ===== LINK STYLE ===== */
+/* ================================================
+         LINK STYLE
+   - Used for "New user? Signup" and "Back to Login"
+================================================ */
 .link{
     margin-top:15px;
     color:#ddd;
     font-size:14px;
 }
 
+/* Green clickable anchor links */
 .link a{
     color:#00e676;
     text-decoration:none;
@@ -119,45 +160,69 @@ body{
     cursor:pointer;
 }
 
-/* ===== PASSWORD MESSAGE ===== */
+/* ================================================
+         PASSWORD STRENGTH MESSAGE
+   - Shown/hidden dynamically via JS
+   - Displays rules or strength feedback
+================================================ */
 #passwordMessage{
     font-size:13px;
     font-weight:500;
     margin-top:5px;
-    display:none;
+    display:none;       /* Hidden by default */
     text-align:left;
 }
 
-/* ===== HIDDEN CLASS FOR FORM SWITCH ===== */
+/* ================================================
+         HIDDEN CLASS
+   - Used to toggle between Login and Signup forms
+================================================ */
 .hidden{
     display:none;
 }
 
+/* ================================================
+         FORM MESSAGE BOX
+   - Shows success or error messages below button
+   - Hidden by default, shown via JS
+================================================ */
 .form-message{
     margin-top:15px;
     padding:10px;
     border-radius:8px;
     font-size:14px;
-    display:none;
+    display:none;   /* Hidden until needed */
 }
 
+/* Green background for success messages */
 .form-message.success{
     background:rgba(34,197,94,0.15);
     color:#22c55e;
 }
 
+/* Red background for error messages */
 .form-message.error{
     background:rgba(239,68,68,0.15);
     color:#ef4444;
 }
 
+/* ================================================
+         INLINE INPUT ERROR MESSAGE
+   - Small red text shown below email input
+   - Appears on blur if email format is wrong
+================================================ */
 .input-error{
     font-size:13px;
     color:#ef4444;
     text-align:left;
     margin-top:5px;
-    display:none;
+    display:none;   /* Hidden until validation fails */
 }
+
+/* ================================================
+         RESPONSIVE STYLES - MOBILE (max 480px)
+   - Adjust padding, font sizes for small screens
+================================================ */
 @media (max-width: 480px){
     body{
         padding:16px;
@@ -196,71 +261,111 @@ body{
 
 <body>
 
-<!-- ===== PARTICLE BACKGROUND DIV ===== -->
+<!-- ================================================
+         PARTICLE BACKGROUND DIV
+     - particles.js will inject canvas inside this div
+     - Must exist before the JS config runs
+================================================ -->
 <div id="particles-js"></div>
 
-<!-- ===== LOGIN FORM ===== -->
+<!-- ================================================
+         LOGIN FORM
+     - Shown by default when page loads
+     - Switches to Signup on "Signup" link click
+================================================ -->
 <div class="container" id="login">
     <h2>Login</h2>
 
+    <!-- Email input for login -->
     <input type="email" class="input-box" id="loginEmail" placeholder="Email">
+
+    <!-- Password input for login -->
     <input type="password" class="input-box" id="loginPass" placeholder="Password">
 
+    <!-- Login submit button -->
     <button class="btn" onclick="login()">Login</button>
-<div id="loginMessage" class="form-message"></div>
 
+    <!-- Success/Error message box for login -->
+    <div id="loginMessage" class="form-message"></div>
+
+    <!-- Link to switch to Signup form -->
     <div class="link">
         New user? <a onclick="showSignup()">Signup</a>
     </div>
 </div>
 
-<!-- ===== SIGNUP FORM ===== -->
+<!-- ================================================
+         SIGNUP FORM
+     - Hidden by default (has 'hidden' class)
+     - Shown when user clicks "Signup" in Login form
+================================================ -->
 <div class="container hidden" id="signup">
     <h2>Signup</h2>
 
+    <!-- Username input -->
     <input type="text" class="input-box" id="signupUser" placeholder="Username">
+
+    <!-- Email input with blur validation -->
     <input type="email"
        class="input-box"
        id="signupEmail"
        placeholder="Email">
-       
 
-<div id="emailError" class="input-error"></div>
+    <!-- Email format error message (shown if not Gmail) -->
+    <div id="emailError" class="input-error"></div>
 
+    <!-- Password input with real-time strength validation -->
     <input type="password"
            class="input-box"
            id="signupPass"
            placeholder="Password"
-           onfocus="showRules()"
-           onblur="hideRules()"
+           onfocus="showRules()"        
+           onblur="hideRules()"         
            onkeyup="validatePassword()">
 
+    <!-- Password strength feedback message -->
     <div id="passwordMessage"></div>
 
+    <!-- Confirm password input -->
     <input type="password" class="input-box" id="signupConfirm" placeholder="Confirm Password">
 
+    <!-- Signup submit button -->
     <button class="btn" onclick="signup()">Create Account</button>
-<div id="signupMessage" class="form-message"></div>
 
+    <!-- Success/Error message box for signup -->
+    <div id="signupMessage" class="form-message"></div>
+
+    <!-- Link to go back to Login form -->
     <div class="link">
         <a onclick="showLogin()">Back to Login</a>
     </div>
 </div>
 
-<!-- ===== PARTICLES JS LIBRARY (IMPORTANT: BEFORE CONFIG) ===== -->
+<!-- ================================================
+         PARTICLES JS LIBRARY
+     - Must be loaded BEFORE particlesJS() config call
+     - CDN version 2.0.0
+================================================ -->
 <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+
 <script>
-/* ===== PARTICLE CONFIGURATION ===== */
+
+/* ================================================
+         PARTICLE BACKGROUND CONFIGURATION
+   - 100 green particles with connecting lines
+   - Repulse on hover, push new particles on click
+   - Bounces off edges (out_mode: "bounce")
+================================================ */
 particlesJS("particles-js", {
   particles: {
-    number: { value: 100 },
-    color: { value: "#00e676" },
-    shape: { type: "circle" },
+    number: { value: 100 },            /* Total number of particles */
+    color: { value: "#00e676" },       /* Green particle color */
+    shape: { type: "circle" },         /* Circular shape */
     opacity: { value: 0.7 },
-    size: { value: 4, random: true },
+    size: { value: 4, random: true },  /* Random sizes for variety */
     line_linked: {
       enable: true,
-      distance: 120,
+      distance: 120,                   /* Max distance to draw a line */
       color: "#00e676",
       opacity: 0.5,
       width: 1
@@ -268,31 +373,44 @@ particlesJS("particles-js", {
     move: {
       enable: true,
       speed: 3,
-      direction: "none",
-      out_mode: "bounce"
+      direction: "none",               /* Move in all random directions */
+      out_mode: "bounce"               /* Bounce off screen edges */
     }
   },
   interactivity: {
     events: {
-      onhover: { enable: true, mode: "repulse" },
-      onclick: { enable: true, mode: "push" }
+      onhover: { enable: true, mode: "repulse" },  /* Push particles away on hover */
+      onclick: { enable: true, mode: "push" }       /* Add new particles on click */
     }
   },
-  retina_detect: true
+  retina_detect: true   /* Sharper rendering on high-DPI screens */
 });
 
-/* ===== FORM SWITCH FUNCTIONS ===== */
+/* ================================================
+         FORM SWITCH FUNCTIONS
+   - Toggle visibility between Login & Signup forms
+   - Uses the 'hidden' CSS class to show/hide
+================================================ */
+
+/* Show Signup form, hide Login form */
 function showSignup(){
   document.getElementById("login").classList.add("hidden");
   document.getElementById("signup").classList.remove("hidden");
 }
 
+/* Show Login form, hide Signup form */
 function showLogin(){
   document.getElementById("signup").classList.add("hidden");
   document.getElementById("login").classList.remove("hidden");
 }
 
-/* ===== PASSWORD RULE DISPLAY ===== */
+/* ================================================
+         PASSWORD RULES DISPLAY
+   - showRules: Display password criteria when 
+     user focuses on the password field
+   - hideRules: Hide the message when user leaves
+     the field (only if field is empty)
+================================================ */
 function showRules(){
   let message = document.getElementById("passwordMessage");
   message.style.display = "block";
@@ -303,22 +421,31 @@ function showRules(){
 function hideRules(){
   let password = document.getElementById("signupPass").value;
   let message = document.getElementById("passwordMessage");
+
+  /* Only hide if password field is completely empty */
   if(password === ""){
     message.style.display = "none";
   }
 }
 
-/* ===== PASSWORD VALIDATION ===== */
+/* ================================================
+         REAL-TIME PASSWORD STRENGTH VALIDATOR
+   - Runs on every keypress in password field
+   - Checks: length, uppercase, lowercase, 
+     number, special character
+   - Shows green "Strong" or red "weak" feedback
+================================================ */
 function validatePassword(){
   let password = document.getElementById("signupPass").value;
   let message = document.getElementById("passwordMessage");
 
+  /* All 5 conditions must be true for strong password */
   let strongPassword =
     password.length >= 8 &&
-    /[A-Z]/.test(password) &&
-    /[a-z]/.test(password) &&
-    /[0-9]/.test(password) &&
-    /[@$!%*?&]/.test(password);
+    /[A-Z]/.test(password) &&       /* At least one uppercase */
+    /[a-z]/.test(password) &&       /* At least one lowercase */
+    /[0-9]/.test(password) &&       /* At least one number */
+    /[@$!%*?&]/.test(password);     /* At least one special char */
 
   if(strongPassword){
     message.innerHTML = "✔ Strong Password";
@@ -329,7 +456,12 @@ function validatePassword(){
   }
 }
 
-/* ===== EMAIL VALIDATION ===== */
+/* ================================================
+         EMAIL FORMAT VALIDATOR
+   - Runs when user leaves (blur) the email field
+   - Only accepts @gmail.com format
+   - Shows red border + error OR green border on pass
+================================================ */
 const emailInput = document.getElementById("signupEmail");
 const emailError = document.getElementById("emailError");
 
@@ -337,23 +469,32 @@ emailInput.addEventListener("blur", function(){
   const email = emailInput.value.trim();
   const emailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
 
+  /* If field is empty, clear any previous error */
   if(email === ""){
     emailError.style.display = "none";
     emailInput.style.border = "none";
     return;
   }
 
+  /* Show error if email doesn't match Gmail pattern */
   if(!emailPattern.test(email)){
     emailError.innerText = "❌ Only @gmail.com email allowed";
     emailError.style.display = "block";
-    emailInput.style.border = "1px solid #ef4444";
+    emailInput.style.border = "1px solid #ef4444";   /* Red border */
   } else {
+    /* Valid email - show green border, hide error */
     emailError.style.display = "none";
-    emailInput.style.border = "1px solid #22c55e";
+    emailInput.style.border = "1px solid #22c55e";   /* Green border */
   }
 });
 
-/* ===== MESSAGE HELPER ===== */
+/* ================================================
+         MESSAGE HELPER FUNCTION
+   - Reusable function to show success/error messages
+   - id: element ID to show message in
+   - text: message text to display
+   - type: "success" or "error" (CSS class)
+================================================ */
 function showMessage(id, text, type){
   const box = document.getElementById(id);
   box.innerText = text;
@@ -361,14 +502,24 @@ function showMessage(id, text, type){
   box.style.display = "block";
 }
 
-/* ===== SIGNUP ===== */
+/* ================================================
+         SIGNUP FUNCTION
+   - Validates all fields before sending to server
+   - Checks: empty fields, Gmail format,
+     password strength, password match
+   - On success: saves user_id to localStorage
+     and redirects to /dashboard
+================================================ */
 function signup(){
+  /* Get all field values */
   let username = document.getElementById("signupUser").value.trim();
   let email = document.getElementById("signupEmail").value.trim();
   let password = document.getElementById("signupPass").value;
   let confirmPassword = document.getElementById("signupConfirm").value;
 
   const gmailPattern = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
+
+  /* Check all 5 password strength conditions */
   const strongPassword =
     password.length >= 8 &&
     /[A-Z]/.test(password) &&
@@ -376,26 +527,33 @@ function signup(){
     /[0-9]/.test(password) &&
     /[@$!%*?&]/.test(password);
 
+  /* --- VALIDATION CHECKS --- */
+
+  /* Check 1: No empty fields allowed */
   if(username === "" || email === "" || password === "" || confirmPassword === ""){
     showMessage("signupMessage", "⚠ Please fill all fields", "error");
     return;
   }
 
+  /* Check 2: Email must be Gmail */
   if(!gmailPattern.test(email)){
     showMessage("signupMessage", "❌ Only @gmail.com email allowed", "error");
     return;
   }
 
+  /* Check 3: Password must meet strength requirements */
   if(!strongPassword){
     showMessage("signupMessage", "❌ Password is not strong enough", "error");
     return;
   }
 
+  /* Check 4: Both passwords must match */
   if(password !== confirmPassword){
     showMessage("signupMessage", "❌ Passwords do not match", "error");
     return;
   }
 
+  /* --- SEND SIGNUP REQUEST TO BACKEND --- */
   fetch("/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -407,32 +565,48 @@ function signup(){
   })
   .then(res => res.json())
   .then(data => {
-   if(data.user_id){
-  localStorage.setItem("currentUserId", data.user_id);
-  showMessage("signupMessage", "✅ Account created successfully! Redirecting to dashboard...", "success");
-  localStorage.setItem("currentUsername", username);
-  setTimeout(() => {
-    window.location.href = "/dashboard";
-  }, 1000);
-} else {
-  showMessage("signupMessage", "❌ " + (data.message || "Signup failed"), "error");
-}
+    if(data.user_id){
+      /* Save user info to localStorage for session use */
+      localStorage.setItem("currentUserId", data.user_id);
+      localStorage.setItem("currentUsername", username);
+
+      showMessage("signupMessage", "✅ Account created successfully! Redirecting to dashboard...", "success");
+
+      /* Redirect to dashboard after 1 second */
+      setTimeout(() => {
+        window.location.href = "/dashboard";
+      }, 1000);
+
+    } else {
+      /* Show backend error message (e.g., email already exists) */
+      showMessage("signupMessage", "❌ " + (data.message || "Signup failed"), "error");
+    }
   })
   .catch(() => {
+    /* Network or server error */
     showMessage("signupMessage", "⚠ Server error. Try again.", "error");
   });
 }
 
-/* ===== LOGIN ===== */
+/* ================================================
+         LOGIN FUNCTION
+   - Validates that both fields are filled
+   - Sends credentials to /login endpoint
+   - On success: saves user info to localStorage
+     and redirects to /dashboard
+   - On failure: shows error message
+================================================ */
 function login(){
   let email = document.getElementById("loginEmail").value.trim();
   let password = document.getElementById("loginPass").value;
 
+  /* Check both fields are filled */
   if(email === "" || password === ""){
     showMessage("loginMessage", "⚠ Please enter email & password", "error");
     return;
   }
 
+  /* --- SEND LOGIN REQUEST TO BACKEND --- */
   fetch("/login", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -441,21 +615,28 @@ function login(){
   .then(res => res.json())
   .then(data => {
     if(data.user_id){
+      /* Save user session data to localStorage */
       localStorage.setItem("currentUserId", data.user_id);
       localStorage.setItem("currentUsername", data.username);
+
       showMessage("loginMessage", "✅ Login Successful! Redirecting...", "success");
 
+      /* Redirect to dashboard after 1 second */
       setTimeout(() => {
         window.location.href = "/dashboard";
       }, 1000);
+
     } else {
+      /* Show error if credentials don't match */
       showMessage("loginMessage", "❌ " + (data.message || "Invalid email or password"), "error");
     }
   })
   .catch(() => {
+    /* Network or server error */
     showMessage("loginMessage", "⚠ Server error. Try again.", "error");
   });
 }
+
 </script>
 </body>
 </html>
