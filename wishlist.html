@@ -5,17 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Predixy My Wishlist</title>
   <style>
+
+    /* ================================================
+           CSS CUSTOM PROPERTIES (DESIGN TOKENS)
+       - Centralized color & shadow variables
+       - Change here = changes everywhere
+    ================================================ */
     :root{
-      --bg:#07111f;
-      --line:rgba(148,163,184,0.16);
-      --text:#e5eefc;
-      --muted:#91a1bb;
-      --green:#22c55e;
-      --blue:#38bdf8;
-      --red:#ef4444;
-      --shadow:0 18px 50px rgba(0,0,0,0.34);
+      --bg:#07111f;                          /* Page background */
+      --line:rgba(148,163,184,0.16);         /* Subtle border lines */
+      --text:#e5eefc;                        /* Primary text color */
+      --muted:#91a1bb;                       /* Secondary/muted text */
+      --green:#22c55e;                       /* Positive/up color */
+      --blue:#38bdf8;                        /* Accent blue */
+      --red:#ef4444;                         /* Negative/down color */
+      --shadow:0 18px 50px rgba(0,0,0,0.34); /* Card shadow */
     }
 
+    /* ================================================
+           GLOBAL RESET
+       - Remove default browser margin/padding
+       - border-box prevents layout overflow issues
+    ================================================ */
     *{
       margin:0;
       padding:0;
@@ -23,6 +34,12 @@
       font-family:"Inter","Segoe UI",system-ui,sans-serif;
     }
 
+    /* ================================================
+           BODY - PAGE BACKGROUND
+       - Multi-layer radial gradients for depth effect
+       - Blue glow top-left, green glow top-right
+       - Dark navy base background
+    ================================================ */
     body{
       min-height:100vh;
       color:var(--text);
@@ -33,11 +50,20 @@
       padding:24px;
     }
 
+    /* ================================================
+           PAGE WRAPPER
+       - Centers content with max-width constraint
+    ================================================ */
     .page{
       max-width:1400px;
       margin:0 auto;
     }
 
+    /* ================================================
+           TOP BAR
+       - Flexbox row: Back button on left, badge on right
+       - flex-wrap allows stacking on small screens
+    ================================================ */
     .topbar{
       display:flex;
       justify-content:space-between;
@@ -47,6 +73,11 @@
       flex-wrap:wrap;
     }
 
+    /* ================================================
+           BACK BUTTON
+       - Dark glassmorphism button with border
+       - Lifts up slightly on hover
+    ================================================ */
     .back-btn{
       border:none;
       outline:none;
@@ -61,11 +92,17 @@
       transition:all .25s ease;
     }
 
+    /* Blue border glow on hover */
     .back-btn:hover{
       transform:translateY(-2px);
       border-color:rgba(56,189,248,0.24);
     }
 
+    /* ================================================
+           SAVED STOCKS COUNT BADGE
+       - Pill-shaped counter in top right
+       - Shows total number of watchlist items
+    ================================================ */
     .count-badge{
       padding:10px 16px;
       border-radius:999px;
@@ -77,6 +114,11 @@
       box-shadow:var(--shadow);
     }
 
+    /* ================================================
+           HERO SECTION
+       - Top banner with page title and description
+       - Gradient background with green + blue glows
+    ================================================ */
     .hero{
       border:1px solid var(--line);
       border-radius:28px;
@@ -103,67 +145,90 @@
       max-width:760px;
     }
 
+    /* ================================================
+           WATCHLIST GRID
+       - Responsive auto-fill grid layout
+       - Cards are minimum 260px, stretch to fill space
+    ================================================ */
     .grid{
       display:grid;
       grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
       gap:18px;
     }
 
+    /* ================================================
+           STOCK CARD
+       - Glassmorphism card with blur effect
+       - Hover: lifts up + border glow + deeper blur
+       - ::before: decorative blue corner gradient
+       - ::after: shimmer swipe animation on hover
+    ================================================ */
     .card{
-  position:relative;
-  padding:20px;
-  border-radius:24px;
-  background: rgba(255,255,255,0.05);
-  border:1px solid var(--line);
-  box-shadow:var(--shadow);
-  overflow:hidden;
-  transition:transform .28s ease, border-color .28s ease, box-shadow .28s ease, background .28s ease;
-  cursor:pointer;
-  min-height:170px;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-}
+      position:relative;
+      padding:20px;
+      border-radius:24px;
+      background:rgba(255,255,255,0.05);     /* Transparent white base */
+      border:1px solid var(--line);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      transition:transform .28s ease, border-color .28s ease, box-shadow .28s ease, background .28s ease;
+      cursor:pointer;
+      min-height:170px;
+      backdrop-filter:blur(10px);            /* Frosted glass effect */
+      -webkit-backdrop-filter:blur(10px);    /* Safari support */
+    }
 
-.card::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  background:
-    radial-gradient(circle at 88% 82%, rgba(53,155,255,0.20), transparent 22%),
-    radial-gradient(circle at 78% 70%, rgba(0,212,255,0.10), transparent 28%),
-    linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
-  pointer-events:none;
-}
+    /* Decorative gradient overlay in bottom-right corner */
+    .card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      background:
+        radial-gradient(circle at 88% 82%, rgba(53,155,255,0.20), transparent 22%),
+        radial-gradient(circle at 78% 70%, rgba(0,212,255,0.10), transparent 28%),
+        linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
+      pointer-events:none;  /* Doesn't block clicks */
+    }
 
-.card::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
-  transform:translateX(-120%);
-  transition:transform .6s ease;
-  pointer-events:none;
-}
+    /* Shimmer effect - slides left to right on hover */
+    .card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.14), transparent);
+      transform:translateX(-120%);   /* Start off-screen left */
+      transition:transform .6s ease;
+      pointer-events:none;
+    }
 
-.card:hover{
-  transform:translateY(-7px);
-  border-color:rgba(56,189,248,0.25);
-  background: rgba(255,255,255,0.08);
-  box-shadow:0 24px 60px rgba(0,0,0,0.44);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-}
+    /* Card hover state */
+    .card:hover{
+      transform:translateY(-7px);
+      border-color:rgba(56,189,248,0.25);
+      background:rgba(255,255,255,0.08);
+      box-shadow:0 24px 60px rgba(0,0,0,0.44);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+    }
 
-.card:hover::after{
-  transform:translateX(120%);
-}
+    /* Trigger shimmer swipe animation on hover */
+    .card:hover::after{
+      transform:translateX(120%);   /* Slide to off-screen right */
+    }
 
-.card > *{
-  position:relative;
-  z-index:2;
-}
+    /* Ensure card content stays above ::before and ::after layers */
+    .card > *{
+      position:relative;
+      z-index:2;
+    }
 
+    /* ================================================
+           REMOVE BUTTON (✖ icon on card)
+       - Absolute positioned top-right of card
+       - Red tinted circle button
+       - Scales up slightly on hover
+    ================================================ */
     .remove-btn{
       position:absolute;
       top:18px;
@@ -179,7 +244,7 @@
       cursor:pointer;
       transition:all .2s ease;
       font-size:18px;
-      z-index:2;
+      z-index:2;   /* Above card gradients */
     }
 
     .remove-btn:hover{
@@ -187,14 +252,24 @@
       background:rgba(239,68,68,0.16);
     }
 
+    /* ================================================
+           COMPANY NAME (STOCK TICKER / SYMBOL)
+       - Large bold heading inside each card
+       - padding-right prevents overlap with remove btn
+    ================================================ */
     .company h4{
       font-size:23px;
       font-weight:800;
       letter-spacing:-0.03em;
       margin-bottom:10px;
-      padding-right:34px;
+      padding-right:34px;   /* Space for remove button */
     }
 
+    /* ================================================
+           META ROW - PILLS/TAGS
+       - Flexbox row of small pill badges
+       - Shows "Saved" status and ticker symbol
+    ================================================ */
     .meta-row{
       display:flex;
       align-items:center;
@@ -203,6 +278,7 @@
       margin-bottom:16px;
     }
 
+    /* Base pill style */
     .pill{
       font-size:12px;
       color:#c7d5ea;
@@ -212,19 +288,26 @@
       background:rgba(255,255,255,0.04);
     }
 
+    /* Blue variant for ticker symbol pill */
     .ticker{
       color:#7dd3fc;
       background:rgba(56,189,248,0.10);
       border-color:rgba(56,189,248,0.20);
     }
 
+    /* ================================================
+           PRICE SECTION
+       - Container for current price + change info
+       - min-height prevents layout shift while loading
+    ================================================ */
     .price{
       margin-top:8px;
       font-size:15px;
       color:#d7e6f8;
-      min-height:52px;
+      min-height:52px;   /* Prevents card height jump on load */
     }
 
+    /* Large bold price number */
     .price-main{
       display:block;
       font-size:31px;
@@ -235,6 +318,7 @@
       color:#f8fbff;
     }
 
+    /* Change pill (green for up, red for down) */
     .price-change{
       display:inline-flex;
       align-items:center;
@@ -246,16 +330,24 @@
       background:rgba(255,255,255,0.04);
     }
 
+    /* Green style for positive price change */
     .price-change.up{
       color:var(--green);
       background:rgba(34,197,94,0.10);
     }
 
+    /* Red style for negative price change */
     .price-change.down{
       color:#f87171;
       background:rgba(239,68,68,0.10);
     }
 
+    /* ================================================
+           EMPTY STATE
+       - Shown when watchlist has no stocks
+       - Dashed border with centered message
+       - Hidden by default, shown via JS
+    ================================================ */
     .empty-state{
       border:1px dashed rgba(148,163,184,0.2);
       border-radius:22px;
@@ -263,9 +355,15 @@
       color:var(--muted);
       text-align:center;
       background:rgba(10,19,33,0.7);
-      display:none;
+      display:none;   /* Hidden until watchlist is empty */
     }
 
+    /* ================================================
+           RESPONSIVE - TABLET (max 768px)
+       - Reduce padding and font sizes
+       - Stack topbar items vertically
+       - Single column grid
+    ================================================ */
     @media (max-width: 768px){
       body{
         padding:14px;
@@ -287,211 +385,323 @@
       .price-main{
         font-size:26px;
       }
+
+      /* Stack topbar items vertically */
+      .topbar{
+        flex-direction:column;
+        align-items:stretch;
+      }
+
+      /* Full width topbar buttons */
+      .back-btn,
+      .count-badge{
+        width:100%;
+        text-align:center;
+      }
+
+      /* Single column on tablet */
+      .grid{
+        grid-template-columns:1fr;
+      }
     }
-    @media (max-width: 768px){
-  .topbar{
-    flex-direction: column;
-    align-items: stretch;
-  }
 
-  .back-btn,
-  .count-badge{
-    width: 100%;
-    text-align: center;
-  }
+    /* ================================================
+           RESPONSIVE - MOBILE (max 480px)
+       - Further reduce all spacing and sizes
+       - Compact card and button layout
+    ================================================ */
+    @media (max-width: 480px){
+      body{
+        padding:10px;
+      }
 
-  .grid{
-    grid-template-columns: 1fr;
-  }
-}
+      .hero{
+        padding:14px;
+        border-radius:18px;
+      }
 
-@media (max-width: 480px){
-  body{
-    padding: 10px;
-  }
+      .hero h1{
+        font-size:22px;
+      }
 
-  .hero{
-    padding: 14px;
-    border-radius: 18px;
-  }
+      .hero p{
+        font-size:13px;
+      }
 
-  .hero h1{
-    font-size: 22px;
-  }
+      .card{
+        padding:16px;
+        border-radius:18px;
+        min-height:auto;   /* Let card height be content-driven */
+      }
 
-  .hero p{
-    font-size: 13px;
-  }
+      /* Smaller remove button on mobile */
+      .remove-btn{
+        top:14px;
+        right:14px;
+        width:34px;
+        height:34px;
+        font-size:16px;
+      }
 
-  .card{
-    padding: 16px;
-    border-radius: 18px;
-    min-height: auto;
-  }
+      .company h4{
+        font-size:18px;
+        padding-right:28px;
+      }
 
-  .remove-btn{
-    top: 14px;
-    right: 14px;
-    width: 34px;
-    height: 34px;
-    font-size: 16px;
-  }
+      .pill{
+        font-size:11px;
+        padding:5px 8px;
+      }
 
-  .company h4{
-    font-size: 18px;
-    padding-right: 28px;
-  }
+      .price-main{
+        font-size:24px;
+      }
 
-  .pill{
-    font-size: 11px;
-    padding: 5px 8px;
-  }
+      .price-change{
+        font-size:12px;
+        padding:6px 8px;
+      }
 
-  .price-main{
-    font-size: 24px;
-  }
+      .empty-state{
+        padding:22px 14px;
+        border-radius:18px;
+        font-size:13px;
+      }
+    }
 
-  .price-change{
-    font-size: 12px;
-    padding: 6px 8px;
-  }
-
-  .empty-state{
-    padding: 22px 14px;
-    border-radius: 18px;
-    font-size: 13px;
-  }
-}
   </style>
 </head>
 <body>
   <div class="page">
+
+    <!-- ================================================
+             TOP BAR
+         - Back button navigates to dashboard
+         - Badge shows total saved stocks count
+    ================================================ -->
     <div class="topbar">
       <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
       <div class="count-badge">Saved Stocks: <span id="watchlistCount">0</span></div>
     </div>
 
+    <!-- ================================================
+             HERO SECTION
+         - Page title and short description
+    ================================================ -->
     <section class="hero">
       <h1>My Watchlist</h1>
       <p>Here you can see all saved watchlist stocks. Click any card to open its detailed stock page, or remove it from your watchlist instantly.</p>
     </section>
 
+    <!-- ================================================
+             WATCHLIST GRID
+         - Stock cards are injected here by JS
+         - Empty state shown when no stocks saved
+    ================================================ -->
     <div class="grid" id="watchlistGrid"></div>
     <div class="empty-state" id="emptyState">No stocks in watchlist yet.</div>
+
   </div>
 
- <script>
-  function getCurrentUserId(){
-    return localStorage.getItem("currentUserId");
-  }
+  <script>
 
-  function getWatchlistKey(){
-    const userId = getCurrentUserId();
-    return userId ? `watchlist_${userId}` : "watchlist_guest";
-  }
-
-  function getWatchlist(){
-    return JSON.parse(localStorage.getItem(getWatchlistKey())) || [];
-  }
-
-  function saveWatchlist(data){
-    localStorage.setItem(getWatchlistKey(), JSON.stringify(data));
-  }
-
-  let watchlist = getWatchlist();
-
-  function goBack(){
-    window.location.href = "/dashboard";
-  }
-
-  function formatPrice(symbol, data){
-    const currency = symbol.includes(".NS") ? "₹" : "$";
-    const isUp = Number(data.change) >= 0;
-
-    return `
-      <span class="price-main">${currency}${Number(data.price).toFixed(2)}</span>
-      <span class="price-change ${isUp ? "up" : "down"}">
-        ${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)
-      </span>
-    `;
-  }
-
-  function openStock(symbol, name){
-    window.location.href = `/stock/${encodeURIComponent(symbol)}?s=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name)}`;
-  }
-
-  function removeFromWatchlist(symbol){
-    watchlist = watchlist.filter(item => item.symbol !== symbol);
-    saveWatchlist(watchlist);
-    renderWatchlist();
-  }
-
-  function createCard(stock){
-    const safeName = stock.name.replace(/'/g, "\\'");
-
-    return `
-      <div class="card" onclick="openStock('${stock.symbol}', '${safeName}')">
-        <div class="remove-btn" onclick="event.stopPropagation(); removeFromWatchlist('${stock.symbol}')">✖</div>
-
-        <div class="company">
-          <h4>${stock.name}</h4>
-          <div class="meta-row">
-            <span class="pill">Saved</span>
-            <span class="pill ticker">${stock.symbol}</span>
-          </div>
-        </div>
-
-        <div class="price" id="${stock.symbol}">Loading...</div>
-      </div>
-    `;
-  }
-
-  function renderWatchlist(){
-    watchlist = getWatchlist();
-
-    const grid = document.getElementById("watchlistGrid");
-    const empty = document.getElementById("emptyState");
-    const count = document.getElementById("watchlistCount");
-
-    count.innerText = watchlist.length;
-
-    if(!watchlist.length){
-      grid.innerHTML = "";
-      empty.style.display = "block";
-      return;
+    /* ================================================
+           GET CURRENT USER ID
+       - Reads logged-in user's ID from localStorage
+       - Used to create user-specific watchlist key
+    ================================================ */
+    function getCurrentUserId(){
+      return localStorage.getItem("currentUserId");
     }
 
-    empty.style.display = "none";
-    grid.innerHTML = watchlist.map(createCard).join("");
-    fetchPrices();
-  }
+    /* ================================================
+           GET WATCHLIST STORAGE KEY
+       - Creates a unique key per user: "watchlist_123"
+       - Falls back to "watchlist_guest" if not logged in
+       - Prevents data mixing between users
+    ================================================ */
+    function getWatchlistKey(){
+      const userId = getCurrentUserId();
+      return userId ? `watchlist_${userId}` : "watchlist_guest";
+    }
 
-  function fetchPrices(){
-    watchlist.forEach(stock => {
-      fetch(`/get_price/${encodeURIComponent(stock.symbol)}`)
-        .then(res => res.json())
-        .then(data => {
-          const el = document.getElementById(stock.symbol);
-          if(!el) return;
+    /* ================================================
+           GET WATCHLIST FROM LOCALSTORAGE
+       - Reads and parses JSON array from storage
+       - Returns empty array if nothing stored yet
+    ================================================ */
+    function getWatchlist(){
+      return JSON.parse(localStorage.getItem(getWatchlistKey())) || [];
+    }
 
-          if(data.error){
-            el.innerHTML = "Price unavailable";
-            return;
-          }
+    /* ================================================
+           SAVE WATCHLIST TO LOCALSTORAGE
+       - Converts array to JSON and saves it
+       - Called after any add/remove operation
+    ================================================ */
+    function saveWatchlist(data){
+      localStorage.setItem(getWatchlistKey(), JSON.stringify(data));
+    }
 
-          el.innerHTML = formatPrice(stock.symbol, data);
-        })
-        .catch(() => {
-          const el = document.getElementById(stock.symbol);
-          if(el) el.innerHTML = "Price unavailable";
-        });
+    /* Load watchlist data into memory on startup */
+    let watchlist = getWatchlist();
+
+    /* ================================================
+           GO BACK TO DASHBOARD
+       - Navigates user back to the main dashboard
+    ================================================ */
+    function goBack(){
+      window.location.href = "/dashboard";
+    }
+
+    /* ================================================
+           FORMAT PRICE HTML
+       - Builds the price display HTML for each card
+       - Detects Indian stocks (.NS) to show ₹ symbol
+       - Shows green ▲ for positive, red ▼ for negative
+       - Returns HTML string injected into .price div
+    ================================================ */
+    function formatPrice(symbol, data){
+      /* Use Rupee for NSE stocks, Dollar for others */
+      const currency = symbol.includes(".NS") ? "₹" : "$";
+      const isUp = Number(data.change) >= 0;
+
+      return `
+        <span class="price-main">${currency}${Number(data.price).toFixed(2)}</span>
+        <span class="price-change ${isUp ? "up" : "down"}">
+          ${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)
+        </span>
+      `;
+    }
+
+    /* ================================================
+           OPEN STOCK DETAIL PAGE
+       - Navigates to /stock/:symbol with query params
+       - encodeURIComponent handles special characters
+         in symbol names (e.g., spaces, dots)
+    ================================================ */
+    function openStock(symbol, name){
+      window.location.href = `/stock/${encodeURIComponent(symbol)}?s=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name)}`;
+    }
+
+    /* ================================================
+           REMOVE STOCK FROM WATCHLIST
+       - Filters out the stock with matching symbol
+       - Saves updated array and re-renders the grid
+    ================================================ */
+    function removeFromWatchlist(symbol){
+      watchlist = watchlist.filter(item => item.symbol !== symbol);
+      saveWatchlist(watchlist);
+      renderWatchlist();   /* Re-render after removal */
+    }
+
+    /* ================================================
+           CREATE STOCK CARD HTML
+       - Builds the HTML string for a single card
+       - Uses safeName to escape single quotes
+         (prevents JS injection in onclick strings)
+       - event.stopPropagation() on remove btn prevents
+         card click from firing when removing
+    ================================================ */
+    function createCard(stock){
+      /* Escape single quotes to prevent onclick string breaking */
+      const safeName = stock.name.replace(/'/g, "\\'");
+
+      return `
+        <div class="card" onclick="openStock('${stock.symbol}', '${safeName}')">
+
+          <!-- Remove button: stopPropagation prevents card click -->
+          <div class="remove-btn" onclick="event.stopPropagation(); removeFromWatchlist('${stock.symbol}')">✖</div>
+
+          <!-- Company name and meta pills -->
+          <div class="company">
+            <h4>${stock.name}</h4>
+            <div class="meta-row">
+              <span class="pill">Saved</span>
+              <span class="pill ticker">${stock.symbol}</span>
+            </div>
+          </div>
+
+          <!-- Price div: ID = symbol, updated by fetchPrices() -->
+          <div class="price" id="${stock.symbol}">Loading...</div>
+        </div>
+      `;
+    }
+
+    /* ================================================
+           RENDER WATCHLIST
+       - Re-reads watchlist from localStorage (fresh data)
+       - Updates the count badge
+       - Shows empty state if no stocks saved
+       - Renders all cards and fetches live prices
+    ================================================ */
+    function renderWatchlist(){
+      watchlist = getWatchlist();   /* Always read fresh from storage */
+
+      const grid = document.getElementById("watchlistGrid");
+      const empty = document.getElementById("emptyState");
+      const count = document.getElementById("watchlistCount");
+
+      /* Update the saved stocks counter badge */
+      count.innerText = watchlist.length;
+
+      /* Show empty state if watchlist is empty */
+      if(!watchlist.length){
+        grid.innerHTML = "";
+        empty.style.display = "block";
+        return;
+      }
+
+      /* Hide empty state, render all stock cards */
+      empty.style.display = "none";
+      grid.innerHTML = watchlist.map(createCard).join("");
+
+      /* Fetch live prices for all rendered cards */
+      fetchPrices();
+    }
+
+    /* ================================================
+           FETCH LIVE PRICES (ALL STOCKS)
+       - Loops through all watchlist stocks
+       - Calls /get_price/:symbol for each
+       - Updates the price div in each card
+       - Shows "Price unavailable" on error
+    ================================================ */
+    function fetchPrices(){
+      watchlist.forEach(stock => {
+        fetch(`/get_price/${encodeURIComponent(stock.symbol)}`)
+          .then(res => res.json())
+          .then(data => {
+            const el = document.getElementById(stock.symbol);
+            if(!el) return;   /* Card may have been removed */
+
+            if(data.error){
+              el.innerHTML = "Price unavailable";
+              return;
+            }
+
+            /* Inject formatted price HTML into card */
+            el.innerHTML = formatPrice(stock.symbol, data);
+          })
+          .catch(() => {
+            /* Network error - show fallback message */
+            const el = document.getElementById(stock.symbol);
+            if(el) el.innerHTML = "Price unavailable";
+          });
+      });
+    }
+
+    /* ================================================
+           PAGE LOAD HANDLER
+       - Renders watchlist when page fully loads
+       - Sets up auto-refresh every 30 seconds
+         to keep prices current without page reload
+    ================================================ */
+    window.addEventListener("load", function(){
+      renderWatchlist();
+      setInterval(fetchPrices, 30000);   /* Refresh prices every 30s */
     });
-  }
 
-  window.addEventListener("load", function(){
-    renderWatchlist();
-    setInterval(fetchPrices, 30000);
-  });
-</script>
+  </script>
 </body>
 </html>
