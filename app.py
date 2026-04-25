@@ -8,8 +8,7 @@ from lstm_model import predict_prices, predict_intraday_prices
 app = Flask(__name__)
 CORS(app)
 
-DATABASE = "database.db"
-
+DATABASE = "/data/database.db"
 
 def init_db():
     with sqlite3.connect(DATABASE) as conn:
