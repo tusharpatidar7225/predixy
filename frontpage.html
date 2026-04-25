@@ -1516,15 +1516,24 @@ z-index: 1;
     }
   });
 
-  window.addEventListener("load", async function(){
-    updateCounts();
-    updateMarketStatus();
-    fetchPrices();
-    await loadWatchlistUI();
-    loadCurrentUsername();
-    
-    setInterval(fetchPrices, 30000);
-    setInterval(updateMarketStatus, 60000);
+  window.addEventListener("load", function(){
+
+  // sabse pehle light cheeze
+  updateCounts();
+  updateMarketStatus();
+
+  // username instantly
+  loadCurrentUsername();
+
+  // heavy cheeze delay me
+  setTimeout(fetchPrices, 1500);
+  setTimeout(loadWatchlistUI, 2000);
+
+  // refresh slow kar diya
+  setInterval(fetchPrices, 60000);
+  setInterval(updateMarketStatus, 60000);
+
+});
   });
 </script>
 </body>
