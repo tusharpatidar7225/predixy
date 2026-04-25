@@ -5,3 +5,5 @@ yfinance==0.2.66
 pandas==2.2.3
 numpy==1.26.4
 requests==2.32.3
+scikit-learn==1.5.1
+tensorflow==2.16.1
