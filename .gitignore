@@ -1,5 +1,4 @@
-venv/
+database.db
+model_cache/
 __pycache__/
 *.pyc
-.env
-model_cache/database.db 
