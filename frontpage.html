@@ -1516,15 +1516,20 @@ z-index: 1;
     }
   });
 
-window.addEventListener("load", async function(){
-    updateCounts();
-    updateMarketStatus();
-    fetchPrices();
-    await loadWatchlistUI();
-    loadCurrentUsername();
-    
-    setInterval(fetchPrices, 30000);
-    setInterval(updateMarketStatus, 60000);
+window.addEventListener("load", function(){
+  updateCounts();
+  updateMarketStatus();
+
+  // prices pehle load honge
+  fetchPrices();
+
+  // ye background me chalega, page ko block nahi karega
+  loadWatchlistUI();
+  loadCurrentUsername();
+
+  setInterval(fetchPrices, 30000);
+  setInterval(updateMarketStatus, 60000);
+});
 
 });
   });
