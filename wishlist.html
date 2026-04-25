@@ -430,8 +430,7 @@
 
     return `
       <div class="card" onclick="openStock('${stock.symbol}', '${safeName}')">
-        <div class="remove-btn" onclick="event.stopPropagation(); removeFromWatchlist('${stock.symbol}')">✖</div>
-
+<div class="remove-btn" onclick="removeStock(event, '${stock.symbol}')">✖</div>
         <div class="company">
           <h4>${stock.name}</h4>
           <div class="meta-row">
