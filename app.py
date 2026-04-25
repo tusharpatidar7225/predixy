@@ -4,26 +4,17 @@ import sqlite3
 import yfinance as yf
 import re
 import os
-
-# ================================================
-#           APP INITIALIZATION & CONFIG
-# ================================================
+from lstm_model import predict_prices, predict_intraday_prices
 app = Flask(__name__)
-CORS(app)  # Enable Cross-Origin Resource Sharing for all routes
+CORS(app)
 
-DATABASE = "database.db"  # SQLite database file name
+DATABASE = "database.db"
 
 
-# ================================================
-#           DATABASE INITIALIZATION
-# ================================================
 def init_db():
-    """
-    Creates the 'users' table if it doesn't already exist.
-    Called once when the server starts.
-    """
     with sqlite3.connect(DATABASE) as conn:
         c = conn.cursor()
+
         c.execute("""
             CREATE TABLE IF NOT EXISTS users (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -32,80 +23,66 @@ def init_db():
                 password TEXT
             )
         """)
+
+        c.execute("""
+            CREATE TABLE IF NOT EXISTS watchlist (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                symbol TEXT NOT NULL,
+                name TEXT NOT NULL,
+                UNIQUE(user_id, symbol),
+                FOREIGN KEY(user_id) REFERENCES users(id)
+            )
+        """)
+
         conn.commit()
 
-init_db()  # Run DB initialization on startup
 
+init_db()
 
-# ================================================
-#           PAGE ROUTES (HTML SERVING)
-# ================================================
 
 @app.route("/")
 def home():
-    """Serve the Login/Signup page as the homepage."""
     return send_from_directory(".", "loginsignup.html")
 
 
-@app.route('/sitemap.xml')
+@app.route("/sitemap.xml")
 def sitemap():
-    """Serve the sitemap.xml file for SEO purposes."""
-    return send_from_directory('.', 'sitemap.xml')
+    return send_from_directory(".", "sitemap.xml")
 
 
 @app.route("/dashboard")
 def dashboard():
-    """Serve the main dashboard/frontpage after login."""
     return send_from_directory(".", "frontpage.html")
 
 
 @app.route("/wishlist")
 def wishlist():
-    """Serve the wishlist page where users can view saved stocks."""
     return send_from_directory(".", "wishlist.html")
 
 
 @app.route("/stock/<symbol>")
 def stock_page(symbol):
-    """
-    Serve the stock detail page for a given stock symbol.
-    Example: /stock/AAPL => shows stock.html for Apple
-    """
     return send_from_directory(".", "stock.html")
 
 
 @app.route("/logout")
 def logout():
-    """Logout route - redirects user back to Login/Signup page."""
     return send_from_directory(".", "loginsignup.html")
 
 
-# ================================================
-#           REAL-TIME STOCK PRICE API
-# ================================================
-
 @app.route("/get_price/<symbol>")
 def get_price(symbol):
-    """
-    Fetch real-time stock price for a given symbol using yFinance.
-    Returns current price, change, percent change, and previous close.
-    
-    Example: GET /get_price/AAPL
-    """
     try:
         stock = yf.Ticker(symbol)
-
-        # Fetch today's 1-minute interval data
         hist = stock.history(period="1d", interval="1m")
 
         if hist.empty:
             return jsonify({"error": "No data"}), 400
 
-        # Latest close = current price | First close = reference for change
         current_price = float(hist["Close"].iloc[-1])
         previous_close = float(hist["Close"].iloc[0])
 
-        # Calculate absolute and percentage change
         change = current_price - previous_close
         percent = (change / previous_close) * 100
 
@@ -120,37 +97,23 @@ def get_price(symbol):
         return jsonify({"error": str(e)}), 400
 
 
-# ================================================
-#           USER SIGNUP API
-# ================================================
-
 @app.route("/signup", methods=["POST"])
 def signup():
-    """
-    Register a new user account.
-    
-    Expects JSON: { "username": "", "email": "", "password": "" }
-    - Only @gmail.com emails are allowed.
-    - Returns user_id on success.
-    """
     data = request.json
+    gmail_pattern = r"^[a-zA-Z0-9._%+-]+@gmail\.com$"
 
-    # Validate that only Gmail addresses are accepted
-    gmail_pattern = r'^[a-zA-Z0-9._%+-]+@gmail\.com$'
     if not re.match(gmail_pattern, data["email"]):
         return jsonify({"message": "Only @gmail.com email allowed"}), 400
 
     try:
         with sqlite3.connect(DATABASE) as conn:
             c = conn.cursor()
-
-            # Insert new user into the database
             c.execute(
                 "INSERT INTO users (username,email,password) VALUES (?,?,?)",
                 (data["username"], data["email"], data["password"])
             )
             conn.commit()
-            user_id = c.lastrowid  # Get the auto-generated ID of new user
+            user_id = c.lastrowid
 
         return jsonify({
             "message": "Account created",
@@ -158,32 +121,18 @@ def signup():
         }), 200
 
     except sqlite3.IntegrityError:
-        # Triggered when email already exists (UNIQUE constraint)
         return jsonify({"message": "Email already exists"}), 400
 
     except Exception:
         return jsonify({"message": "Server error"}), 500
 
 
-# ================================================
-#           USER LOGIN API
-# ================================================
-
 @app.route("/login", methods=["POST"])
 def login():
-    """
-    Authenticate an existing user.
-    
-    Expects JSON: { "email": "", "password": "" }
-    - Returns user_id and username on success.
-    - Returns 401 if credentials are invalid.
-    """
     data = request.json
 
     with sqlite3.connect(DATABASE) as conn:
         c = conn.cursor()
-
-        # Check if a user exists with matching email & password
         c.execute(
             "SELECT id, username FROM users WHERE email=? AND password=?",
             (data["email"], data["password"])
@@ -191,32 +140,18 @@ def login():
         user = c.fetchone()
 
     if user:
-        # Login successful - return user info
         return jsonify({
             "user_id": user[0],
             "username": user[1]
         }), 200
     else:
-        # No matching record found - invalid credentials
         return jsonify({"message": "Invalid email or password"}), 401
 
 
-# ================================================
-#           STOCK GRAPH DATA API
-# ================================================
-
 @app.route("/get_graph/<symbol>")
 def get_graph(symbol):
-    """
-    Fetch intraday stock data for charting (5-minute intervals).
-    Also returns key stats: open, high, low, volume, previous close.
-    
-    Example: GET /get_graph/TSLA
-    """
     try:
         stock = yf.Ticker(symbol)
-
-        # Fetch today's data at 5-minute intervals for the chart
         hist = stock.history(period="1d", interval="5m", auto_adjust=False)
 
         if hist.empty:
@@ -225,27 +160,14 @@ def get_graph(symbol):
         times = []
         prices = []
 
-        # Build time and price arrays for the chart
         for index, row in hist.iterrows():
-            times.append(index.strftime("%H:%M"))          # Format time as HH:MM
-            prices.append(round(float(row["Close"]), 2))   # Round to 2 decimal places
+            times.append(index.strftime("%H:%M"))
+            prices.append(round(float(row["Close"]), 2))
 
-        # Calculate key daily statistics from intraday data
         day_open = float(hist["Open"].iloc[0])
         day_high = float(hist["High"].max())
         day_low = float(hist["Low"].min())
         volume = int(hist["Volume"].sum())
-
-        # Fetch last 10 days of daily data to find previous close
-        daily_hist = stock.history(period="10d", interval="1d", auto_adjust=False)
-        daily_hist = daily_hist.dropna(subset=["Close"])  # Remove any rows with no close price
-
-        # Get the second-to-last close as the "previous close"
-        previous_close = None
-        if len(daily_hist) >= 2:
-            previous_close = float(daily_hist["Close"].iloc[-2])
-        elif len(daily_hist) == 1:
-            previous_close = float(daily_hist["Close"].iloc[-1])
 
         return jsonify({
             "times": times,
@@ -253,7 +175,6 @@ def get_graph(symbol):
             "open": round(day_open, 2),
             "high": round(day_high, 2),
             "low": round(day_low, 2),
-            "previous_close": round(previous_close, 2) if previous_close is not None else None,
             "volume": volume
         })
 
@@ -261,11 +182,168 @@ def get_graph(symbol):
         return jsonify({"error": str(e)}), 400
 
 
-# ================================================
-#           SERVER ENTRY POINT
-# ================================================
+@app.route("/get_prediction/<symbol>")
+def get_prediction(symbol):
+    try:
+        result = predict_prices(symbol)
+
+        if result is None:
+            return jsonify({
+                "success": False,
+                "message": f"Prediction unavailable for {symbol}. Data enough nahi mila ya model train/load nahi hua.",
+                "next_day": None,
+                "week": None,
+                "month": None
+            }), 400
+
+        return jsonify({
+            "success": True,
+            "message": f"Prediction generated for {symbol}",
+            "next_day": result["next_day"],
+            "week": result["week"],
+            "month": result["month"]
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            "success": False,
+            "message": f"Prediction error: {str(e)}",
+            "next_day": None,
+            "week": None,
+            "month": None
+        }), 500
+
+
+@app.route("/watchlist/<int:user_id>", methods=["GET"])
+def get_watchlist(user_id):
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT symbol, name FROM watchlist WHERE user_id=? ORDER BY id DESC",
+                (user_id,)
+            )
+            rows = c.fetchall()
+
+        items = [{"symbol": row[0], "name": row[1]} for row in rows]
+        return jsonify({"watchlist": items}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/watchlist/add", methods=["POST"])
+def add_to_watchlist():
+    data = request.json
+    user_id = data.get("user_id")
+    symbol = data.get("symbol")
+    name = data.get("name")
+
+    if not user_id or not symbol or not name:
+        return jsonify({"message": "Missing fields"}), 400
+
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "INSERT OR IGNORE INTO watchlist (user_id, symbol, name) VALUES (?, ?, ?)",
+                (user_id, symbol, name)
+            )
+            conn.commit()
+
+        return jsonify({"message": "Added to watchlist"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/watchlist/remove", methods=["POST"])
+def remove_from_watchlist():
+    data = request.json
+    user_id = data.get("user_id")
+    symbol = data.get("symbol")
+
+    if not user_id or not symbol:
+        return jsonify({"message": "Missing fields"}), 400
+
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "DELETE FROM watchlist WHERE user_id=? AND symbol=?",
+                (user_id, symbol)
+            )
+            conn.commit()
+
+        return jsonify({"message": "Removed from watchlist"}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/watchlist/check", methods=["POST"])
+def check_watchlist():
+    data = request.json
+    user_id = data.get("user_id")
+    symbol = data.get("symbol")
+
+    if not user_id or not symbol:
+        return jsonify({"message": "Missing fields"}), 400
+
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT id FROM watchlist WHERE user_id=? AND symbol=?",
+                (user_id, symbol)
+            )
+            row = c.fetchone()
+
+        return jsonify({"saved": bool(row)}), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/get_intraday_prediction/<symbol>")
+def get_intraday_prediction(symbol):
+    try:
+        from datetime import timedelta
+
+        stock = yf.Ticker(symbol)
+        hist_today = stock.history(period="1d", interval="5m", auto_adjust=False)
+
+        if hist_today.empty:
+            return jsonify({"times": [], "prices": []}), 200
+
+        last_index = hist_today.index[-1]
+
+        close_hour, close_minute = (15, 30) if symbol.endswith(".NS") else (16, 0)
+        close_time = last_index.replace(hour=close_hour, minute=close_minute)
+
+        future_times = []
+        next_time = last_index + timedelta(minutes=5)
+
+        while next_time <= close_time:
+            future_times.append(next_time)
+            next_time += timedelta(minutes=5)
+
+        steps = len(future_times)
+
+        predicted_prices = predict_intraday_prices(symbol, steps=steps)
+
+        if predicted_prices is None:
+            return jsonify({"times": [], "prices": []}), 200
+
+        return jsonify({
+            "times": [t.strftime("%H:%M") for t in future_times],
+            "prices": predicted_prices
+        })
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
 
 if __name__ == "__main__":
-    # Use PORT from environment (for deployment) or default to 5000
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port, debug=False)
+    app.run(host="0.0.0.0", port=port, debug=True)
