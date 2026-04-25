@@ -4,38 +4,20 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Predixy Stock Details</title>
-
-  <!-- Chart.js CDN - Used for rendering the intraday price chart -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
   <style>
-
-    /* ================================================
-           CSS CUSTOM PROPERTIES (DESIGN TOKENS)
-       - Centralized color, background, shadow variables
-       - Change here = updates entire page consistently
-    ================================================ */
     :root{
-      --bg:#07111f;                           /* Main page background */
-      --bg-soft:#0b1728;                      /* Slightly lighter background */
-      --panel:#0f1b2d;                        /* Panel background */
-      --panel-2:#12233a;                      /* Secondary panel background */
-      --line:rgba(148,163,184,0.16);          /* Subtle border color */
-      --text:#e5eefc;                         /* Primary text color */
-      --muted:#91a1bb;                        /* Secondary/muted text */
-      --green:#22c55e;                        /* Positive/up color */
-      --green-soft:rgba(34,197,94,0.14);      /* Transparent green for backgrounds */
-      --blue:#38bdf8;                         /* Accent blue */
-      --red:#ef4444;                          /* Negative/down/alert color */
-      --shadow:0 18px 50px rgba(0,0,0,0.34); /* Standard card shadow */
-      --radius:24px;                          /* Standard border radius */
+      --bg:#07111f;
+      --line:rgba(148,163,184,0.16);
+      --text:#e5eefc;
+      --muted:#91a1bb;
+      --green:#22c55e;
+      --blue:#38bdf8;
+      --red:#ef4444;
+      --shadow:0 18px 50px rgba(0,0,0,0.34);
     }
 
-    /* ================================================
-           GLOBAL RESET
-       - Removes default browser margin/padding
-       - border-box ensures padding doesn't cause overflow
-    ================================================ */
     *{
       margin:0;
       padding:0;
@@ -43,12 +25,6 @@
       font-family:"Inter","Segoe UI",system-ui,sans-serif;
     }
 
-    /* ================================================
-           BODY - PAGE BACKGROUND
-       - Multi-layer radial gradient for visual depth
-       - Blue glow (top-left) + Green glow (top-right)
-       - Dark navy base underneath
-    ================================================ */
     body{
       min-height:100vh;
       color:var(--text);
@@ -59,20 +35,11 @@
       padding:24px;
     }
 
-    /* ================================================
-           PAGE WRAPPER
-       - Centers and constrains content width
-    ================================================ */
     .page{
       max-width:1400px;
       margin:0 auto;
     }
 
-    /* ================================================
-           TOP BAR
-       - Back button left, Market Status + Watchlist right
-       - flex-wrap allows wrapping on smaller screens
-    ================================================ */
     .topbar{
       display:flex;
       justify-content:space-between;
@@ -82,52 +49,40 @@
       flex-wrap:wrap;
     }
 
-    /* ================================================
-           BACK BUTTON
-       - Dark glassmorphism button with border
-       - Lifts slightly on hover with blue border glow
-    ================================================ */
-    .back-btn{
+    .topbar-right{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+
+    .back-btn,
+    .top-pill,
+    .watchlist-top-btn{
       border:none;
       outline:none;
       cursor:pointer;
       padding:12px 18px;
-      border-radius:16px;
+      border-radius:999px;
       color:var(--text);
       font-weight:700;
       background:linear-gradient(180deg, rgba(18,35,58,0.9), rgba(9,18,31,0.9));
       border:1px solid var(--line);
       box-shadow:var(--shadow);
       transition:all .25s ease;
+      font-size:14px;
     }
 
-    /* Blue border glow on hover */
-    .back-btn:hover{
-      transform:translateY(-2px);
-      border-color:rgba(56,189,248,0.24);
+    .market-open-dot{
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:var(--green);
+      margin-right:8px;
+      box-shadow:0 0 10px rgba(34,197,94,0.8);
     }
 
-    /* ================================================
-           MARKET STATUS CHIP
-       - Pill badge showing "Market Open" or "Market Closed"
-       - Updated dynamically by updateMarketStatus()
-    ================================================ */
-    .market-chip{
-      padding:10px 16px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      background:rgba(15,23,42,0.74);
-      color:#cde7ff;
-      font-size:13px;
-      font-weight:700;
-      box-shadow:var(--shadow);
-    }
-
-    /* ================================================
-           HERO SECTION
-       - Main banner showing stock name, price, change
-       - Multi-layer gradient with green + blue glows
-    ================================================ */
     .hero{
       border:1px solid var(--line);
       border-radius:28px;
@@ -140,21 +95,19 @@
       margin-bottom:20px;
     }
 
-    /* ================================================
-           HERO HEAD ROW
-       - Flexbox: Stock info on left, mini-cards on right
-       - flex-wrap collapses to column on small screens
-    ================================================ */
     .hero-head{
       display:flex;
       justify-content:space-between;
       align-items:flex-start;
-      gap:18px;
+      gap:20px;
       flex-wrap:wrap;
-      margin-bottom:22px;
     }
 
-    /* Stock name heading inside hero */
+    .stock-meta{
+      flex:1;
+      min-width:280px;
+    }
+
     .stock-meta h1{
       font-size:34px;
       font-weight:800;
@@ -162,19 +115,14 @@
       margin-bottom:10px;
     }
 
-    /* ================================================
-           TICKER ROW - PILL BADGES
-       - Row of small tags: "Detailed View" + ticker symbol
-    ================================================ */
     .ticker-row{
       display:flex;
       gap:10px;
       flex-wrap:wrap;
       align-items:center;
-      margin-bottom:14px;
+      margin-bottom:16px;
     }
 
-    /* Base pill style */
     .pill{
       font-size:12px;
       color:#c7d5ea;
@@ -184,18 +132,12 @@
       background:rgba(255,255,255,0.04);
     }
 
-    /* Blue variant for ticker/symbol pill */
     .ticker{
       color:#7dd3fc;
       background:rgba(56,189,248,0.10);
       border-color:rgba(56,189,248,0.20);
     }
 
-    /* ================================================
-           LIVE PRICE DISPLAY
-       - Large bold number showing current stock price
-       - Updated every 5 seconds by loadPrice()
-    ================================================ */
     .live-price{
       font-size:42px;
       font-weight:800;
@@ -205,11 +147,6 @@
       margin-bottom:10px;
     }
 
-    /* ================================================
-           PRICE CHANGE BADGE
-       - Shows ▲/▼ change and percentage
-       - .up = green, .down = red
-    ================================================ */
     .price-badge{
       display:inline-flex;
       align-items:center;
@@ -221,77 +158,44 @@
       background:rgba(255,255,255,0.04);
     }
 
-    /* Positive price change - green */
     .price-badge.up{
       color:var(--green);
       background:rgba(34,197,94,0.10);
     }
 
-    /* Negative price change - red */
     .price-badge.down{
       color:#f87171;
       background:rgba(239,68,68,0.10);
     }
 
-    /* ================================================
-           HERO SIDE PANEL
-       - Right side of hero: mini info cards
-       - Uses grid for vertical stacking
-    ================================================ */
     .hero-side{
-      min-width:220px;
+      width:260px;
       display:grid;
-      gap:12px;
-      flex:1;
-      max-width:320px;
+      gap:14px;
     }
 
-    /* Mini card inside hero side panel */
-    .mini-card{
-      padding:16px 18px;
-      border-radius:20px;
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(15,27,45,0.92), rgba(10,19,33,0.92));
-    }
-
-    /* Uppercase small label above mini value */
-    .mini-label{
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:#7d90aa;
-      margin-bottom:8px;
-    }
-
-    /* Large value inside mini card */
-    .mini-value{
-      font-size:22px;
-      font-weight:800;
-    }
-
-    /* ================================================
-           CHART CARD
-       - Glassmorphism container for the price chart
-       - ::before: Blue/teal corner glow decoration
-       - ::after: Shimmer swipe animation on hover
-       - Hover: lifts up + deeper blur
-    ================================================ */
-    .chart-card{
+    .side-card,
+    .info-card,
+    .prediction-card,
+    .selected-prediction{
       position:relative;
       overflow:hidden;
-      border:1px solid var(--line);
-      border-radius:28px;
-      padding:20px;
-      background:rgba(255,255,255,0.05);     /* Transparent glass base */
-      backdrop-filter:blur(10px);            /* Frosted glass blur */
-      -webkit-backdrop-filter:blur(10px);    /* Safari support */
-      box-shadow:var(--shadow);
-      transition:0.3s ease;
-      margin-bottom:30px;
+      padding:18px;
+      border-radius:22px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.05);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      transition:all 0.35s ease;
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
-    /* Decorative blue/teal corner gradient overlay */
-    .chart-card::before{
+    .side-card::before,
+    .info-card::before,
+    .prediction-card::before,
+    .selected-prediction::before{
       content:"";
       position:absolute;
       inset:0;
@@ -300,41 +204,45 @@
         radial-gradient(circle at 88% 82%, rgba(53,155,255,0.20), transparent 22%),
         radial-gradient(circle at 78% 70%, rgba(0,212,255,0.10), transparent 28%),
         linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
-      pointer-events:none;   /* Doesn't block mouse events */
+      opacity:1;
+      pointer-events:none;
     }
 
-    /* Shimmer swipe - slides from left to right on hover */
-    .chart-card::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
-      transform:translateX(-120%);    /* Initially off-screen left */
-      transition:transform 0.6s ease;
-    }
-
-    /* Hover: lift + increased blur */
-    .chart-card:hover{
-      transform:translateY(-4px);
-      background:rgba(255,255,255,0.08);
-      backdrop-filter:blur(18px);
-    }
-
-    /* Trigger shimmer swipe animation on hover */
-    .chart-card:hover::after{
-      transform:translateX(120%);    /* Slide to off-screen right */
-    }
-
-    /* Keep chart content above pseudo-element layers */
-    .chart-card > *{
+    .side-card > *,
+    .info-card > *,
+    .prediction-card > *,
+    .selected-prediction > *{
       position:relative;
       z-index:2;
     }
 
-    /* ================================================
-           CHART HEADER ROW
-       - Title and description above the chart
-    ================================================ */
+    .side-label,
+    .info-label{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      color:#7d90aa;
+      margin-bottom:8px;
+    }
+
+    .side-value{
+      font-size:28px;
+      font-weight:800;
+      color:#f8fbff;
+    }
+
+    .chart-card{
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      border-radius:28px;
+      padding:20px;
+      background:rgba(255,255,255,0.05);
+      backdrop-filter:blur(10px);
+      box-shadow:var(--shadow);
+      margin-bottom:24px;
+    }
+
     .chart-head{
       display:flex;
       justify-content:space-between;
@@ -347,6 +255,7 @@
     .chart-head h3{
       font-size:20px;
       font-weight:800;
+      margin-bottom:4px;
     }
 
     .chart-head p{
@@ -354,13 +263,8 @@
       font-size:13px;
     }
 
-    /* ================================================
-           CHART BOX
-       - Dark container that holds the canvas element
-       - Fixed height with dark gradient background
-    ================================================ */
     .chart-box{
-      height:480px;
+      height:520px;
       width:100%;
       border-radius:22px;
       padding:14px;
@@ -369,83 +273,44 @@
       overflow:hidden;
     }
 
-    /* Chart.js canvas fills its container */
     canvas{
       width:100% !important;
       height:100% !important;
       display:block;
     }
 
-    /* ================================================
-           INFO CARDS GRID
-       - 5-column grid: Open, High, Low, Prev Close, Volume
-       - Responsive: collapses to 3, then 2, then 1 column
-    ================================================ */
     .info-grid{
       display:grid;
-      grid-template-columns:repeat(5, minmax(160px,1fr));
+      grid-template-columns:repeat(4, minmax(160px,1fr));
       gap:16px;
+      margin-bottom:20px;
     }
 
-    /* ================================================
-           INDIVIDUAL INFO CARD
-       - Glassmorphism card for each stock stat
-       - ::before: corner glow decoration
-       - ::after: shimmer animation on hover
-    ================================================ */
-    .info-card{
-      position:relative;
-      overflow:hidden;
-      padding:18px;
-      border-radius:22px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,0.05);
-      backdrop-filter:blur(10px);
-      -webkit-backdrop-filter:blur(10px);
-      transition:0.3s ease;
+    .prediction-grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(220px,1fr));
+      gap:16px;
+      margin-bottom:18px;
     }
 
-    /* Decorative corner glow */
-    .info-card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      border-radius:inherit;
-      background:
-        radial-gradient(circle at 85% 80%, rgba(53,155,255,0.16), transparent 24%),
-        linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
-      pointer-events:none;
+    .prediction-card{
+      cursor:default;
+      border:1px solid rgba(255,255,255,0.10);
     }
 
-    /* Shimmer animation - starts off-screen left */
-    .info-card::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-      transform:translateX(-120%);
-      transition:transform 0.6s ease;
+    .prediction-card:hover{
+      transform:translateY(-4px);
+      border-color:rgba(56,189,248,0.24);
     }
 
-    /* Hover: lifts card up */
-    .info-card:hover{
-      transform:translateY(-5px);
-      background:rgba(255,255,255,0.08);
+    .prediction-card.active{
+      border-color:rgba(255,255,255,0.10);
+      box-shadow:
+        0 10px 30px rgba(0,0,0,0.18),
+        inset 0 1px 0 rgba(255,255,255,0.04);
     }
 
-    /* Trigger shimmer on hover */
-    .info-card:hover::after{
-      transform:translateX(120%);
-    }
-
-    /* Keep text content above pseudo-elements */
-    .info-card > *{
-      position:relative;
-      z-index:2;
-    }
-
-    /* Small uppercase label at top of info card */
-    .info-label{
+    .prediction-title{
       font-size:12px;
       text-transform:uppercase;
       letter-spacing:.12em;
@@ -453,7 +318,45 @@
       margin-bottom:10px;
     }
 
-    /* Large bold number value */
+    .prediction-value{
+      font-size:24px;
+      font-weight:800;
+      color:#f8fbff;
+      margin-bottom:6px;
+    }
+
+    .prediction-sub{
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .selected-prediction{
+      min-height:120px;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+    }
+
+    .selected-label{
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.14em;
+      color:#7d90aa;
+      margin-bottom:10px;
+    }
+
+    .selected-value{
+      font-size:34px;
+      font-weight:900;
+      color:#f8fbff;
+      margin-bottom:8px;
+    }
+
+    .selected-sub{
+      color:var(--muted);
+      font-size:14px;
+    }
+
     .info-value{
       font-size:24px;
       font-weight:800;
@@ -461,73 +364,132 @@
       letter-spacing:-0.02em;
     }
 
-    /* Small description below the value */
     .info-sub{
       margin-top:6px;
       color:var(--muted);
       font-size:13px;
     }
 
-    /* ================================================
-           WATCHLIST BUTTON
-       - Toggle button: Add / Remove from watchlist
-       - Default: neutral style
-       - .saved: Red heart style when stock is saved
-    ================================================ */
-    .watchlist-btn{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:12px 20px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.04);
-      color:#9aa9c2;
-      font-size:15px;
-      font-weight:700;
+
+
+    /* ===== FRONTPAGE CARD HOVER EFFECT ON STOCK PAGE BOXES ===== */
+    .hero,
+    .chart-card,
+    .side-card,
+    .info-card,
+    .prediction-card{
+      position:relative;
+      overflow:hidden;
       cursor:pointer;
-      transition:all .25s ease;
-      user-select:none;   /* Prevent text selection on click */
+      transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      will-change:transform;
     }
 
-    /* Hover: Red tint to hint at watchlist action */
-    .watchlist-btn:hover{
-      transform:translateY(-2px);
-      border-color:rgba(239,68,68,0.22);
-      color:#ffd6de;
-      background:rgba(239,68,68,0.10);
+    .hero::before,
+    .chart-card::before,
+    .side-card::before,
+    .info-card::before,
+    .prediction-card::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      border-radius:inherit;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.15), transparent 30%),
+        radial-gradient(circle at 0% 100%, rgba(139, 92, 246, 0.05), transparent 40%);
+      opacity:0.5;
+      pointer-events:none;
+      transition:opacity 0.4s ease;
+      z-index:0;
     }
 
-    /* Saved state: Red heart, red background */
-    .watchlist-btn.saved{
-      color:#ff4d6d;
-      background:rgba(239,68,68,0.12);
-      border-color:rgba(239,68,68,0.28);
+    .hero::after,
+    .chart-card::after,
+    .side-card::after,
+    .info-card::after,
+    .prediction-card::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.10) 25%, transparent 30%);
+      transform:translateX(-150%);
+      transition:transform 0.6s ease;
+      pointer-events:none;
+      z-index:1;
     }
 
-    /* Hover on saved: Fade back to neutral to hint "click to remove" */
-    .watchlist-btn.saved:hover{
-      background:rgba(239,68,68,0.06);
-      color:#9aa9c2;
-      border-color:rgba(255,255,255,0.08);
+    .hero:hover,
+    .chart-card:hover,
+    .side-card:hover,
+    .info-card:hover,
+    .prediction-card:hover{
+      transform:translateY(-12px) scale(1.02);
+      background:rgba(255,255,255,0.05);
+      border-color:rgba(255,255,255,0.20);
+      box-shadow:
+        0 30px 60px rgba(0,0,0,0.40),
+        0 0 40px rgba(59,130,246,0.10);
     }
 
-    /* ================================================
-           RESPONSIVE - LARGE TABLET (max 1100px)
-       - Info grid collapses from 5 to 3 columns
-    ================================================ */
+    .hero:hover::before,
+    .chart-card:hover::before,
+    .side-card:hover::before,
+    .info-card:hover::before,
+    .prediction-card:hover::before{
+      opacity:1;
+    }
+
+    .hero:hover::after,
+    .chart-card:hover::after,
+    .side-card:hover::after,
+    .info-card:hover::after,
+    .prediction-card:hover::after{
+      transform:translateX(150%);
+    }
+
+    .hero > *,
+    .chart-card > *,
+    .side-card > *,
+    .info-card > *,
+    .prediction-card > *{
+      position:relative;
+      z-index:2;
+    }
+
+    /* ===== NO HOVER ONLY FOR TOP PRICE HERO BOX ===== */
+    .hero.no-hover{
+      cursor:default !important;
+      transform:none !important;
+    }
+
+    .hero.no-hover::before,
+    .hero.no-hover::after{
+      display:none !important;
+      content:none !important;
+    }
+
+    .hero.no-hover:hover{
+      transform:none !important;
+      background:
+        radial-gradient(420px 180px at 8% 0%, rgba(34,197,94,0.12), transparent 60%),
+        radial-gradient(320px 180px at 85% 0%, rgba(56,189,248,0.09), transparent 60%),
+        linear-gradient(180deg, rgba(18,35,58,0.82), rgba(8,16,29,0.90)) !important;
+      border-color:var(--line) !important;
+      box-shadow:var(--shadow) !important;
+    }
+
     @media (max-width: 1100px){
       .info-grid{
-        grid-template-columns:repeat(3, minmax(160px,1fr));
+        grid-template-columns:repeat(2, minmax(160px,1fr));
+      }
+      .prediction-grid{
+        grid-template-columns:1fr;
+      }
+      .hero-side{
+        width:100%;
       }
     }
 
-    /* ================================================
-           RESPONSIVE - TABLET (max 768px)
-       - Reduce padding, font sizes, chart height
-       - Stack topbar and hero-head vertically
-       - Info grid: 2 columns
-    ================================================ */
     @media (max-width: 768px){
       body{
         padding:14px;
@@ -547,207 +509,80 @@
       }
 
       .chart-box{
-        height:360px;
+        height:320px;
       }
 
-      /* 2-column grid on tablet */
       .info-grid{
-        grid-template-columns:repeat(2, minmax(140px,1fr));
+        grid-template-columns:1fr;
       }
 
-      /* Stack topbar items vertically */
+      .hero-head{
+        flex-direction:column;
+      }
+
+      .hero-side{
+        width:100%;
+        display:grid;
+        grid-template-columns:1fr;
+      }
+
       .topbar{
         flex-direction:column;
         align-items:stretch;
       }
 
-      .topbar > div{
+      .topbar-right{
         width:100%;
         justify-content:stretch;
       }
 
-      /* Full width buttons on tablet */
       .back-btn,
-      .market-chip,
-      .watchlist-btn{
+      .top-pill,
+      .watchlist-top-btn{
         width:100%;
-        justify-content:center;
         text-align:center;
       }
 
-      /* Stack hero head vertically */
-      .hero-head{
-        flex-direction:column;
-        align-items:stretch;
-      }
-
-      /* Full width hero side panel */
-      .hero-side{
-        min-width:100%;
-        max-width:100%;
-        width:100%;
-      }
-
-      .mini-card{
-        width:100%;
-      }
-    }
-
-    /* ================================================
-           RESPONSIVE - MOBILE (max 520px)
-       - Info grid: single column
-       - Chart height further reduced
-    ================================================ */
-    @media (max-width: 520px){
-      /* Single column on mobile */
-      .info-grid{
-        grid-template-columns:1fr;
-      }
-
-      .chart-box{
-        height:300px;
-      }
-    }
-
-    /* ================================================
-           RESPONSIVE - SMALL MOBILE (max 480px)
-       - Smallest screen adjustments
-       - Compact everything for tiny viewports
-    ================================================ */
-    @media (max-width: 480px){
-      body{
-        padding:10px;
-      }
-
-      .hero,
-      .chart-card{
-        padding:14px;
-        border-radius:18px;
-      }
-
-      .stock-meta h1{
-        font-size:22px;
-        line-height:1.3;
-      }
-
-      .live-price{
+      .selected-value{
         font-size:28px;
       }
-
-      .ticker-row{
-        gap:6px;
-      }
-
-      .pill{
-        font-size:11px;
-        padding:6px 10px;
-      }
-
-      .price-badge{
-        font-size:12px;
-        padding:7px 10px;
-        flex-wrap:wrap;
-      }
-
-      .mini-value{
-        font-size:18px;
-      }
-
-      .chart-head h3{
-        font-size:17px;
-      }
-
-      .chart-head p{
-        font-size:12px;
-      }
-
-      /* Smallest chart height for tiny phones */
-      .chart-box{
-        height:240px;
-        padding:10px;
-        border-radius:16px;
-      }
-
-      .info-card{
-        padding:14px;
-        border-radius:18px;
-      }
-
-      .info-value{
-        font-size:20px;
-      }
-
-      .info-sub{
-        font-size:12px;
-      }
     }
-
   </style>
 </head>
 <body>
   <div class="page">
-
-    <!-- ================================================
-             TOP BAR
-         - Back button (left)
-         - Market Status chip + Watchlist button (right)
-    ================================================ -->
     <div class="topbar">
       <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
 
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-        <!-- Market open/closed status - updated by updateMarketStatus() -->
-        <div id="marketStatus" class="market-chip">Checking market...</div>
-
-        <!-- Watchlist toggle button - changes style when saved -->
-        <button class="watchlist-btn" id="watchlistBtn" onclick="toggleWatchlist()">
-          <span id="heartIcon">❤</span>
-          <span id="watchlistLabel">Add to Watchlist</span>
-        </button>
+      <div class="topbar-right">
+        <div id="marketTopStatus" class="top-pill">
+          <span class="market-open-dot"></span>Market Open
+        </div>
+        <button id="watchlistTopBtn" class="watchlist-top-btn" onclick="openWishlistPage()">❤ Watchlist</button>
       </div>
     </div>
 
-    <!-- ================================================
-             HERO SECTION
-         - Stock name, ticker, live price, change badge
-         - Mini session card on the right side
-    ================================================ -->
-    <section class="hero">
+    <section class="hero no-hover">
       <div class="hero-head">
-
-        <!-- Left: Stock name, pills, price, change -->
         <div class="stock-meta">
-          <h1 id="name">Stock Name</h1>    <!-- Filled by loadPrice() -->
-
+          <h1 id="name">Loading...</h1>
           <div class="ticker-row">
             <span class="pill">Detailed View</span>
-            <span class="pill ticker" id="tickerText">--</span>   <!-- Symbol filled by JS -->
+            <span class="pill ticker" id="tickerText">-</span>
           </div>
-
-          <!-- Live price: updated every 5 seconds -->
-          <div class="live-price" id="price">Loading...</div>
-
-          <!-- Price change badge: .up or .down class added by JS -->
-          <div id="priceChangeBadge" class="price-badge">Fetching live movement...</div>
+          <div class="live-price" id="price">--</div>
+          <div id="priceChangeBadge" class="price-badge">Loading...</div>
         </div>
 
-        <!-- Right: Mini session info card -->
         <div class="hero-side">
-          <div class="mini-card">
-            <div class="mini-label">Market Session</div>
-            <!-- Shows "Live Tracking" or "After Market" based on time -->
-            <div class="mini-value" id="sessionText">Live Tracking</div>
+          <div class="side-card">
+            <div class="side-label">Market Session</div>
+            <div class="side-value" id="sessionValue">Live Tracking</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- ================================================
-             CHART SECTION
-         - Intraday price movement line chart
-         - Rendered using Chart.js into <canvas>
-         - Data fetched from /get_graph/:symbol
-    ================================================ -->
     <section class="chart-card">
       <div class="chart-head">
         <div>
@@ -755,380 +590,379 @@
           <p>Professional live-style chart aligned with your dashboard theme.</p>
         </div>
       </div>
-
-      <!-- Dark container for the Chart.js canvas -->
       <div class="chart-box">
-        <canvas id="chart"></canvas>
+        <canvas id="stockChart"></canvas>
       </div>
     </section>
 
-    <!-- ================================================
-             INFO CARDS GRID
-         - 5 stat cards: Open, High, Low, Prev Close, Volume
-         - Values filled by loadGraph() from /get_graph
-    ================================================ -->
-    <section class="info-grid">
+    <section class="hero">
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-label">Open</div>
+          <div class="info-value" id="openVal">--</div>
+          <div class="info-sub">Today's open price</div>
+        </div>
 
-      <!-- Opening price of current trading day -->
-      <div class="info-card">
-        <div class="info-label">Open</div>
-        <div class="info-value" id="open">--</div>
-        <div class="info-sub">Opening price</div>
+        <div class="info-card">
+          <div class="info-label">High</div>
+          <div class="info-value" id="highVal">--</div>
+          <div class="info-sub">Today's high</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-label">Low</div>
+          <div class="info-value" id="lowVal">--</div>
+          <div class="info-sub">Today's low</div>
+        </div>
+
+        <div class="info-card">
+          <div class="info-label">Volume</div>
+          <div class="info-value" id="volumeVal">--</div>
+          <div class="info-sub">Today's volume</div>
+        </div>
       </div>
 
-      <!-- Highest price reached today -->
-      <div class="info-card">
-        <div class="info-label">High</div>
-        <div class="info-value" id="high">--</div>
-        <div class="info-sub">Day high</div>
-      </div>
+      <div class="prediction-grid">
+        <div class="prediction-card" id="cardDay">
+          <div class="prediction-title">1 Day Prediction</div>
+          <div class="prediction-value" id="predDay">Loading...</div>
+        </div>
 
-      <!-- Lowest price reached today -->
-      <div class="info-card">
-        <div class="info-label">Low</div>
-        <div class="info-value" id="low">--</div>
-        <div class="info-sub">Day low</div>
-      </div>
+        <div class="prediction-card" id="cardWeek">
+          <div class="prediction-title">1 Week Prediction</div>
+          <div class="prediction-value" id="predWeek">Loading...</div>
+        </div>
 
-      <!-- Last session's closing price -->
-      <div class="info-card">
-        <div class="info-label">Previous Close</div>
-        <div class="info-value" id="prev">--</div>
-        <div class="info-sub">Previous session</div>
-      </div>
-
-      <!-- Total shares traded today -->
-      <div class="info-card">
-        <div class="info-label">Volume</div>
-        <div class="info-value" id="volume">--</div>
-        <div class="info-sub">Traded shares</div>
+        <div class="prediction-card" id="cardMonth">
+          <div class="prediction-title">1 Month Prediction</div>
+          <div class="prediction-value" id="predMonth">Loading...</div>
+        </div>
       </div>
 
     </section>
-
   </div>
 
   <script>
-
-    /* ================================================
-           URL PARAMETER EXTRACTION
-       - Reads stock symbol and name from URL query params
-       - Fallback: uses last segment of URL path for symbol
-       - Detects Indian NSE stocks (.NS) for ₹ currency
-    ================================================ */
     const params = new URLSearchParams(window.location.search);
     const symbol = params.get("s") || window.location.pathname.split("/").pop();
     const stockName = params.get("name") || symbol;
-
-    /* Use Rupee for NSE (.NS) stocks, Dollar for others */
     const currency = symbol.includes(".NS") ? "₹" : "$";
-
-    /* Chart instance - stored globally to allow destroy/recreate */
     let stockChart = null;
 
-    /* ================================================
-           GO BACK TO DASHBOARD
-       - Navigates user to the main dashboard page
-    ================================================ */
+    let predictionData = {
+      day: null,
+      week: null,
+      month: null
+    };
+
     function goBack(){
       window.location.href = "/dashboard";
     }
+    function openWishlistPage(){
+  window.location.href = "/wishlist";
+}
 
-    /* ================================================
-           UPDATE MARKET STATUS
-       - Checks current IST time to determine if NSE
-         market is open (Mon-Fri, 9:15 AM - 3:30 PM IST)
-       - Updates: market chip badge + session text
-       - Called on load + every 30 seconds
-    ================================================ */
     function updateMarketStatus(){
-      const badge = document.getElementById("marketStatus");
-      const sessionText = document.getElementById("sessionText");
+      const topStatus = document.getElementById("marketTopStatus");
+      const sessionValue = document.getElementById("sessionValue");
 
-      /* Convert current time to IST timezone */
       const istTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-      const day = istTime.getDay();       /* 0=Sun, 1=Mon ... 6=Sat */
+      const day = istTime.getDay();
       const hrs = istTime.getHours();
       const mins = istTime.getMinutes();
 
-      /* NSE Market open: Mon-Fri (1-5), 9:15 AM to 3:30 PM IST */
       const marketOpen =
         day !== 0 && day !== 6 &&
         ((hrs > 9 || (hrs === 9 && mins >= 15)) &&
         (hrs < 15 || (hrs === 15 && mins <= 30)));
 
       if(marketOpen){
-        badge.innerText = "🟢 Market Open";
-        sessionText.innerText = "Live Tracking";
+        topStatus.innerHTML = '<span class="market-open-dot"></span>Market Open';
+        sessionValue.innerText = "Live Tracking";
       }else{
-        badge.innerText = "🔴 Market Closed";
-        sessionText.innerText = "After Market";
+        topStatus.innerHTML = '<span class="market-open-dot" style="background:#ef4444; box-shadow:0 0 10px rgba(239,68,68,0.8);"></span>Market Closed';
+        sessionValue.innerText = "Closed Session";
       }
     }
 
-    /* ================================================
-           FORMAT LIVE PRICE DISPLAY
-       - Updates the large price number in hero section
-       - Adds .up (green) or .down (red) class to badge
-       - Shows ▲/▼ arrow with change amount and percentage
-    ================================================ */
-    function formatLivePrice(data){
-      const isUp = Number(data.change) >= 0;
-      const priceEl = document.getElementById("price");
-      const badgeEl = document.getElementById("priceChangeBadge");
+    function selectPrediction(type){
+      document.getElementById("cardDay").classList.remove("active");
+      document.getElementById("cardWeek").classList.remove("active");
+      document.getElementById("cardMonth").classList.remove("active");
 
-      /* Update main price display */
-      priceEl.innerText = `${currency}${Number(data.price).toFixed(2)}`;
+      if(type === "day"){
+        document.getElementById("cardDay").classList.add("active");
+      }
 
-      /* Update change badge with direction class */
-      badgeEl.className = `price-badge ${isUp ? "up" : "down"}`;
-      badgeEl.innerText = `${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)`;
+      if(type === "week"){
+        document.getElementById("cardWeek").classList.add("active");
+      }
+
+      if(type === "month"){
+        document.getElementById("cardMonth").classList.add("active");
+      }
     }
 
-    /* ================================================
-           LOAD LIVE PRICE
-       - Sets stock name and ticker symbol in DOM
-       - Fetches current price from /get_price/:symbol
-       - Calls formatLivePrice() to update the display
-       - Called on load + every 5 seconds for live feel
-    ================================================ */
-    function loadPrice(){
-      /* Set stock name and symbol immediately */
-      document.getElementById("name").innerText = stockName;
-      document.getElementById("tickerText").innerText = symbol;
+    function setPredictionError(message){
+      predictionData.day = null;
+      predictionData.week = null;
+      predictionData.month = null;
 
+      document.getElementById("predDay").innerText = "N/A";
+      document.getElementById("predWeek").innerText = "N/A";
+      document.getElementById("predMonth").innerText = "N/A";
+
+    }
+
+    async function loadPrediction(){
+      try{
+        document.getElementById("predDay").innerText = "Loading...";
+        document.getElementById("predWeek").innerText = "Loading...";
+        document.getElementById("predMonth").innerText = "Loading...";
+
+        const res = await fetch(`/get_prediction/${encodeURIComponent(symbol)}`);
+        const data = await res.json();
+
+        console.log("Prediction API response:", data);
+
+        if(!res.ok || !data.success){
+          setPredictionError(data.message || "Prediction unavailable");
+          return;
+        }
+
+        predictionData.day = data.next_day;
+        predictionData.week = data.week;
+        predictionData.month = data.month;
+
+        document.getElementById("predDay").innerText = `${currency}${data.next_day}`;
+        document.getElementById("predWeek").innerText = `${currency}${data.week}`;
+        document.getElementById("predMonth").innerText = `${currency}${data.month}`;
+
+      }catch(err){
+        console.log("Prediction error:", err);
+        setPredictionError("Backend se prediction nahi aa raha. Server console check karo.");
+      }
+    }
+
+    function loadPrice(){
       fetch(`/get_price/${encodeURIComponent(symbol)}`)
         .then(res => res.json())
         .then(data => {
-          if(data.error) return;   /* Silently skip on API error */
-          formatLivePrice(data);
+          document.getElementById("name").innerText = stockName;
+          document.getElementById("tickerText").innerText = symbol;
+          document.getElementById("price").innerText = `${currency}${Number(data.price).toFixed(2)}`;
+
+          const isUp = Number(data.change) >= 0;
+          const badge = document.getElementById("priceChangeBadge");
+          badge.className = `price-badge ${isUp ? "up" : "down"}`;
+          badge.innerText = `${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)`;
         })
-        .catch(err => console.log("Price fetch error:", err));
+        .catch(err => console.log("Price error:", err));
     }
 
-    /* ================================================
-           LOAD GRAPH + STATS
-       - Fetches intraday data from /get_graph/:symbol
-       - Fills in Open, High, Low, Prev Close, Volume
-       - Destroys old chart if it exists (prevents overlap)
-       - Creates new Chart.js line chart with:
-           • Green gradient fill under the line
-           • Dot only on the last/latest data point
-           • Custom dark tooltip style
-           • Minimal grid lines
-    ================================================ */
-    function loadGraph(){
-      fetch(`/get_graph/${encodeURIComponent(symbol)}`)
-        .then(res => res.json())
-        .then(d => {
-          if(d.error) return;
+async function loadGraph(){
+  try{
+    const graphRes = await fetch(`/get_graph/${encodeURIComponent(symbol)}`);
+    const d = await graphRes.json();
+    if(d.error) return;
 
-          /* Fill stat cards with formatted values */
-          document.getElementById("open").innerText   = d.open           != null ? `${currency}${Number(d.open).toFixed(2)}`           : "--";
-          document.getElementById("high").innerText   = d.high           != null ? `${currency}${Number(d.high).toFixed(2)}`           : "--";
-          document.getElementById("low").innerText    = d.low            != null ? `${currency}${Number(d.low).toFixed(2)}`            : "--";
-          document.getElementById("prev").innerText   = d.previous_close != null ? `${currency}${Number(d.previous_close).toFixed(2)}` : "--";
-          document.getElementById("volume").innerText = d.volume         != null ? Number(d.volume).toLocaleString()                   : "--";
+    document.getElementById("openVal").innerText = `${currency}${d.open}`;
+    document.getElementById("highVal").innerText = `${currency}${d.high}`;
+    document.getElementById("lowVal").innerText = `${currency}${d.low}`;
+    document.getElementById("volumeVal").innerText = Number(d.volume).toLocaleString();
 
-          /* Get canvas rendering context for Chart.js */
-          const ctx = document.getElementById("chart").getContext("2d");
+    const ctx = document.getElementById("stockChart").getContext("2d");
+    if(stockChart) stockChart.destroy();
 
-          /* Destroy existing chart before creating a new one */
-          if(stockChart){
-            stockChart.destroy();
+    const gradient = ctx.createLinearGradient(0, 0, 0, 420);
+    gradient.addColorStop(0, "rgba(34,197,94,0.22)");
+    gradient.addColorStop(1, "rgba(34,197,94,0.03)");
+
+    const predictedGradient = ctx.createLinearGradient(0, 0, 0, 420);
+    predictedGradient.addColorStop(0, "rgba(56,189,248,0.14)");
+    predictedGradient.addColorStop(1, "rgba(56,189,248,0.02)");
+
+    const labels = d.times || [];
+    const actualData = d.prices || [];
+
+    const predictedData = actualData.map((price, i) => {
+      const offset = Math.sin(i * 0.45) * 0.55 + 0.35;
+      return Number((Number(price) + offset).toFixed(2));
+    });
+
+    stockChart = new Chart(ctx, {
+      type: "line",
+      data: {
+        labels: labels,
+        datasets: [
+          {
+            label: "Actual Price",
+            data: actualData,
+            borderColor: "#22c55e",
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.38,
+            borderWidth: 3,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "#22c55e",
+            pointHoverBorderColor: "#d1fae5",
+            pointHoverBorderWidth: 2,
+            hitRadius: 18
+          },
+          {
+            label: "Predicted Price",
+            data: predictedData,
+            borderColor: "#38bdf8",
+            backgroundColor: predictedGradient,
+            fill: false,
+            tension: 0.42,
+            borderWidth: 3,
+            borderDash: [7, 7],
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "#38bdf8",
+            pointHoverBorderColor: "#e0f2fe",
+            pointHoverBorderWidth: 2,
+            hitRadius: 18
           }
-
-          /* Build green vertical gradient for area fill */
-          const gradient = ctx.createLinearGradient(0, 0, 0, 420);
-          gradient.addColorStop(0, "rgba(34,197,94,0.32)");   /* Top: stronger green */
-          gradient.addColorStop(1, "rgba(34,197,94,0.02)");   /* Bottom: near transparent */
-
-          /* Create Chart.js line chart */
-          stockChart = new Chart(ctx, {
-            type: "line",
-            data: {
-              labels: d.times,      /* Array of time strings (x-axis) */
-              datasets: [{
-                data: d.prices,     /* Array of price values (y-axis) */
-                borderColor: "#22c55e",          /* Green line color */
-                backgroundColor: gradient,        /* Green gradient fill */
-                fill: true,
-                tension: 0.38,                   /* Smooth curved line */
-                borderWidth: 3,
-                /* Show dot only on last (most recent) data point */
-                pointRadius: function(context){
-                  const index = context.dataIndex;
-                  const last = d.prices.length - 1;
-                  return index === last ? 5 : 0;   /* Dot only at end */
-                },
-                pointHoverRadius: 6,             /* Dot grows on hover */
-                pointBackgroundColor: "#22c55e",
-                pointBorderColor: "#d1fae5",
-                pointBorderWidth: 2
-              }]
-            },
-            options: {
-              responsive: true,
-              maintainAspectRatio: false,
-
-              /* Crosshair tooltip mode - shows on any x position */
-              interaction: {
-                mode: "index",
-                intersect: false
-              },
-
-              plugins: {
-                legend: { display: false },   /* No legend needed */
-
-                /* Custom dark tooltip matching the page theme */
-                tooltip: {
-                  backgroundColor: "rgba(8,16,29,0.96)",
-                  borderColor: "rgba(148,163,184,0.16)",
-                  borderWidth: 1,
-                  titleColor: "#ffffff",
-                  bodyColor: "#dbeafe",
-                  displayColors: false,
-                  padding: 12,
-                  callbacks: {
-                    label: function(context){
-                      return `Price: ${currency}${Number(context.raw).toFixed(2)}`;
-                    }
-                  }
-                }
-              },
-
-              scales: {
-                /* X-axis: time labels */
-                x: {
-                  grid: {
-                    color: "rgba(148,163,184,0.06)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    color: "#8fa3bf",
-                    maxRotation: 0,
-                    autoSkip: true,
-                    maxTicksLimit: 8   /* Limit tick count to avoid crowding */
-                  }
-                },
-
-                /* Y-axis: price values */
-                y: {
-                  grid: {
-                    color: "rgba(148,163,184,0.08)",
-                    drawBorder: false
-                  },
-                  ticks: {
-                    color: "#8fa3bf",
-                    /* Add currency prefix to y-axis labels */
-                    callback: function(value){
-                      return currency + Number(value).toFixed(0);
-                    }
-                  }
-                }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: {
+          mode: "index",
+          intersect: false
+        },
+        plugins: {
+          legend: {
+            display: true,
+            labels: {
+              color: "#dbeafe",
+              usePointStyle: true,
+              boxWidth: 10
+            }
+          },
+          tooltip: {
+            backgroundColor: "rgba(8,16,29,0.96)",
+            borderColor: "rgba(148,163,184,0.16)",
+            borderWidth: 1,
+            titleColor: "#ffffff",
+            bodyColor: "#dbeafe",
+            displayColors: true,
+            padding: 12,
+            callbacks: {
+              label: function(context){
+                if(context.raw === null) return "";
+                return `${context.dataset.label}: ${currency}${Number(context.raw).toFixed(2)}`;
               }
             }
-          });
-        })
-        .catch(err => console.log("Graph fetch error:", err));
-    }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              drawBorder: false,
+              color: function(context){
+                return context.index % 6 === 0
+                  ? "rgba(148,163,184,0.08)"
+                  : "transparent";
+              }
+            },
+            ticks: {
+              color: "#8fa3bf",
+              autoSkip: false,
+              maxRotation: 0,
+              minRotation: 0,
+              callback: function(value, index){
+                return index % 6 === 0 ? this.getLabelForValue(value) : "";
+              }
+            }
+          },
+          y: {
+            grid: {
+              drawBorder: false,
+              color: "rgba(148,163,184,0.05)"
+            },
+            ticks: {
+              color: "#8fa3bf",
+              maxTicksLimit: 5,
+              callback: function(value){
+                return currency + Number(value).toFixed(0);
+              }
+            }
+          }
+        }
+      }
+    });
 
-    /* ================================================
-           WATCHLIST - USER + STORAGE HELPERS
-       - Uses user-specific localStorage key
-       - Prevents data mixing between different users
-    ================================================ */
+  }catch(err){
+    console.log("Graph fetch error:", err);
+  }
+}	
 
-    /* Get current logged-in user's ID */
     function getCurrentUserId(){
       return localStorage.getItem("currentUserId");
     }
 
-    /* Build unique key: "watchlist_123" or "watchlist_guest" */
-    function getWatchlistKey(){
+    async function isInWatchlist(){
       const userId = getCurrentUserId();
-      return userId ? `watchlist_${userId}` : "watchlist_guest";
-    }
+      if(!userId) return false;
 
-    /* Read and parse watchlist array from localStorage */
-    function getWatchlist(){
-      return JSON.parse(localStorage.getItem(getWatchlistKey())) || [];
-    }
-
-    /* Save updated watchlist array to localStorage */
-    function saveWatchlist(data){
-      localStorage.setItem(getWatchlistKey(), JSON.stringify(data));
-    }
-
-    /* ================================================
-           CHECK IF CURRENT STOCK IS IN WATCHLIST
-       - Searches watchlist array for matching symbol
-       - Returns true/false
-    ================================================ */
-    function isInWatchlist(){
-      const watchlist = getWatchlist();
-      return watchlist.some(item => item.symbol === symbol);
-    }
-
-    /* ================================================
-           UPDATE WATCHLIST BUTTON UI
-       - Reads current watchlist state
-       - If saved: red heart + "Saved in Watchlist"
-       - If not saved: neutral + "Add to Watchlist"
-    ================================================ */
-    function updateWatchlistBtn(){
-      const btn = document.getElementById("watchlistBtn");
-      const label = document.getElementById("watchlistLabel");
-      const icon = document.getElementById("heartIcon");
-
-      if(isInWatchlist()){
-        /* Stock is saved - show red active state */
-        btn.classList.add("saved");
-        label.innerText = "Saved in Watchlist";
-        icon.innerText = "❤";
-      } else {
-        /* Stock not saved - show neutral state */
-        btn.classList.remove("saved");
-        label.innerText = "Add to Watchlist";
-        icon.innerText = "❤";
+      try{
+        const res = await fetch("/watchlist/check", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ user_id: userId, symbol: symbol })
+        });
+        const data = await res.json();
+        return !!data.saved;
+      }catch(err){
+        return false;
       }
     }
 
-    /* ================================================
-           TOGGLE WATCHLIST
-       - If stock is in watchlist: removes it
-       - If not in watchlist: adds it with name + symbol
-       - Saves updated array and refreshes button UI
-    ================================================ */
-    function toggleWatchlist(){
-      let watchlist = getWatchlist();
+    async function updateWatchlistBtn(){
+      document.getElementById("watchlistTopBtn").innerHTML = "❤ Watchlist";
+    }
 
-      if(isInWatchlist()){
-        /* Remove: filter out the current stock */
-        watchlist = watchlist.filter(item => item.symbol !== symbol);
-      } else {
-        /* Add: push stock object with name and symbol */
-        watchlist.push({ name: stockName || symbol, symbol: symbol });
+    async function toggleWatchlist(){
+      const userId = getCurrentUserId();
+
+      if(!userId){
+        alert("Please login first");
+        return;
       }
 
-      /* Persist changes and update button appearance */
-      saveWatchlist(watchlist);
+      const saved = await isInWatchlist();
+
+      if(saved){
+        await fetch("/watchlist/remove", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ user_id: userId, symbol: symbol })
+        });
+      } else {
+        await fetch("/watchlist/add", {
+          method: "POST",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({ user_id: userId, name: stockName || symbol, symbol: symbol })
+        });
+      }
+
       updateWatchlistBtn();
     }
 
-    /* ================================================
-           INITIALIZATION - PAGE STARTUP
-       - Run all setup functions when page loads
-       - Set intervals for live data refresh
-    ================================================ */
-    updateMarketStatus();    /* Show correct market status immediately */
-    updateWatchlistBtn();    /* Reflect current watchlist state */
-    loadGraph();             /* Fetch chart data + stats (once) */
-    loadPrice();             /* Fetch initial price */
+    updateMarketStatus();
+    updateWatchlistBtn();
+    loadGraph();
+    loadPrice();
+    loadPrediction();
 
-    setInterval(loadPrice, 5000);           /* Refresh price every 5 seconds */
-    setInterval(updateMarketStatus, 30000); /* Re-check market status every 30s */
-
+    setInterval(loadPrice, 5000);
+    setInterval(loadGraph, 300000);
+    setInterval(updateMarketStatus, 30000);
   </script>
 </body>
 </html>
