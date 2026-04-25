@@ -7,7 +7,8 @@ import os
 from lstm_model import predict_prices, predict_intraday_prices
 app = Flask(__name__)
 CORS(app)
-
+if not os.path.exists("/data"):
+    os.makedirs("/data")
 DATABASE = "/data/database.db"
 
 def init_db():
