@@ -478,7 +478,10 @@
     grid.innerHTML = watchlist.map(createCard).join("");
     fetchPrices();
   }
-
+function removeStock(e, symbol){
+  e.stopPropagation(); 
+  removeFromWatchlist(symbol);
+}
   function fetchPrices(){
     watchlist.forEach(stock => {
       fetch(`/get_price/${encodeURIComponent(stock.symbol)}`)
