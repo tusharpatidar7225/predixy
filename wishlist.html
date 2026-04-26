@@ -179,7 +179,9 @@
       cursor:pointer;
       transition:all .2s ease;
       font-size:18px;
-      z-index:2;
+      z-index:9999;
+      pointer-events: auto !important;
+      user-select: none;
     }
 
     .remove-btn:hover{
@@ -401,32 +403,43 @@ function formatPrice(symbol, data){
   `;
 }
 
-async function removeFromWatchlist(symbol){
+/* ===========================
+   ✅ ONLY ONE REMOVE FUNCTION
+=========================== */
+async function removeNow(event, btn){
+  event.preventDefault();
+  event.stopPropagation();
+
+  const card = btn.closest(".card");
+  const symbol = card.querySelector(".ticker").innerText.trim();
   const userId = getCurrentUserId();
+
   if(!userId){
     alert("Login again");
     return;
   }
 
-  console.log("Removing:", userId, symbol);
+  console.log("REMOVE CLICKED:", userId, symbol);
 
   try{
     const res = await fetch("/watchlist/remove", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({ user_id: userId, symbol: symbol })
+      body: JSON.stringify({ user_id: userId, symbol })
     });
 
     const data = await res.json();
-    console.log("Remove response:", data);
+    console.log("REMOVE RESPONSE:", data);
 
     if(!res.ok){
       alert(data.message || data.error || "Remove failed");
       return;
     }
 
-    watchlist = watchlist.filter(stock => stock.symbol !== symbol);
-    renderWatchlist();
+    // UI update (NO reload)
+    card.remove();
+    watchlist = watchlist.filter(s => s.symbol !== symbol);
+    document.getElementById("watchlistCount").innerText = watchlist.length;
 
   }catch(err){
     console.log("Remove error:", err);
@@ -434,26 +447,9 @@ async function removeFromWatchlist(symbol){
   }
 }
 
-function createCard(stock){
-  const priceId = "price-" + String(stock.symbol).replace(/[^a-zA-Z0-9]/g, "");
-
-  return `
-    <div class="card">
-      <button class="remove-btn" type="button" data-symbol="${stock.symbol}">✖</button>
-
-      <div class="company">
-        <h4>${stock.name}</h4>
-        <div class="meta-row">
-          <span class="pill">Saved</span>
-          <span class="pill ticker">${stock.symbol}</span>
-        </div>
-      </div>
-
-      <div class="price" id="${priceId}">Loading...</div>
-    </div>
-  `;
-}
-
+/* ===========================
+   LOAD WATCHLIST
+=========================== */
 async function loadWatchlist(){
   const userId = getCurrentUserId();
   if(!userId){
@@ -471,6 +467,32 @@ async function loadWatchlist(){
   }
 }
 
+/* ===========================
+   CARD CREATE
+=========================== */
+function createCard(stock){
+  const priceId = "price-" + String(stock.symbol).replace(/[^a-zA-Z0-9]/g, "");
+
+  return `
+    <div class="card">
+      <button class="remove-btn" type="button" onclick="removeNow(event, this)">✖</button>
+
+      <div class="company">
+        <h4>${stock.name}</h4>
+        <div class="meta-row">
+          <span class="pill">Saved</span>
+          <span class="pill ticker">${stock.symbol}</span>
+        </div>
+      </div>
+
+      <div class="price" id="${priceId}">Loading...</div>
+    </div>
+  `;
+}
+
+/* ===========================
+   RENDER
+=========================== */
 function renderWatchlist(){
   const grid = document.getElementById("watchlistGrid");
   const empty = document.getElementById("emptyState");
@@ -489,6 +511,9 @@ function renderWatchlist(){
   fetchPrices();
 }
 
+/* ===========================
+   PRICE FETCH
+=========================== */
 function fetchPrices(){
   watchlist.forEach(stock => {
     const priceId = "price-" + String(stock.symbol).replace(/[^a-zA-Z0-9]/g, "");
@@ -513,22 +538,15 @@ function fetchPrices(){
   });
 }
 
-document.addEventListener("click", function(e){
-  const btn = e.target.closest(".remove-btn");
-  if(!btn) return;
-
-  e.preventDefault();
-  e.stopPropagation();
-
-  const symbol = btn.dataset.symbol;
-  removeFromWatchlist(symbol);
-});
-
+/* ===========================
+   INIT
+=========================== */
 window.addEventListener("load", async function(){
   await loadWatchlist();
   renderWatchlist();
   setInterval(fetchPrices, 30000);
 });
 </script>
+
 </body>
 </html>
