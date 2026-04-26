@@ -472,9 +472,11 @@ async function loadWatchlist(){
 =========================== */
 function createCard(stock){
   const priceId = "price-" + String(stock.symbol).replace(/[^a-zA-Z0-9]/g, "");
+  const safeSymbol = String(stock.symbol).replace(/'/g, "\\'");
+  const safeName = String(stock.name).replace(/'/g, "\\'");
 
   return `
-    <div class="card">
+    <div class="card" onclick="openStockFromWishlist('${safeSymbol}', '${safeName}')">
       <button class="remove-btn" type="button" onclick="removeNow(event, this)">✖</button>
 
       <div class="company">
@@ -489,7 +491,6 @@ function createCard(stock){
     </div>
   `;
 }
-
 /* ===========================
    RENDER
 =========================== */
@@ -536,6 +537,10 @@ function fetchPrices(){
         if(el) el.innerHTML = "Price unavailable";
       });
   });
+}
+
+function openStockFromWishlist(symbol, name){
+  window.location.href = `/stock/${encodeURIComponent(symbol)}?s=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name)}`;
 }
 
 /* ===========================
