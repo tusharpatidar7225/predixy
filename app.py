@@ -7,10 +7,7 @@ import os
 from lstm_model import predict_prices, predict_intraday_prices
 app = Flask(__name__)
 CORS(app)
-DB_DIR = os.getenv("RAILWAY_VOLUME_MOUNT_PATH", ".")
-os.makedirs(DB_DIR, exist_ok=True)
-DATABASE = os.path.join(DB_DIR, "database.db")
-
+DATABASE = "database.db"
 def init_db():
     with sqlite3.connect(DATABASE) as conn:
         c = conn.cursor()
