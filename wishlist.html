@@ -380,133 +380,168 @@
     <div class="empty-state" id="emptyState">No stocks in watchlist yet.</div>
   </div>
 
- <script>
-  function getCurrentUserId(){
-    return localStorage.getItem("currentUserId");
+<script>
+let watchlist = [];
+
+function getCurrentUserId(){
+  return localStorage.getItem("currentUserId");
+}
+
+function goBack(){
+  window.location.href = "/dashboard";
+}
+
+function openStock(symbol, name){
+  window.location.href = `/stock/${encodeURIComponent(symbol)}?s=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name)}`;
+}
+
+// 🔥 REMOVE FUNCTION
+async function removeFromWatchlist(symbol){
+  const userId = getCurrentUserId();
+
+  if(!userId){
+    alert("Login again");
+    return;
   }
 
-  let watchlist = [];
-
-  function goBack(){
-    window.location.href = "/dashboard";
-  }
-
-  function formatPrice(symbol, data){
-    const currency = symbol.includes(".NS") ? "₹" : "$";
-    const isUp = Number(data.change) >= 0;
-
-    return `
-      <span class="price-main">${currency}${Number(data.price).toFixed(2)}</span>
-      <span class="price-change ${isUp ? "up" : "down"}">
-        ${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)
-      </span>
-    `;
-  }
-
-  function openStock(symbol, name){
-    window.location.href = `/stock/${encodeURIComponent(symbol)}?s=${encodeURIComponent(symbol)}&name=${encodeURIComponent(name)}`;
-  }
-
-  async function removeFromWatchlist(symbol){
-    const userId = getCurrentUserId();
-    if(!userId) return;
-
-    try{
-      await fetch("/watchlist/remove", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ user_id: userId, symbol: symbol })
-      });
-
-      await loadWatchlist();
-      renderWatchlist();
-    }catch(err){
-      console.log("Remove watchlist error:", err);
-    }
-  }
-
-  function createCard(stock){
-    const safeName = stock.name.replace(/'/g, "\'");
-
-    return `
-      <div class="card" onclick="openStock('${stock.symbol}', '${safeName}')">
-        <div class="remove-btn" onclick="event.stopPropagation(); removeFromWatchlist('${stock.symbol}')">✖</div>
-
-        <div class="company">
-          <h4>${stock.name}</h4>
-          <div class="meta-row">
-            <span class="pill">Saved</span>
-            <span class="pill ticker">${stock.symbol}</span>
-          </div>
-        </div>
-
-        <div class="price" id="${stock.symbol}">Loading...</div>
-      </div>
-    `;
-  }
-
-  async function loadWatchlist(){
-    const userId = getCurrentUserId();
-    if(!userId){
-      watchlist = [];
-      return;
-    }
-
-    try{
-      const res = await fetch(`/watchlist/${userId}`);
-      const data = await res.json();
-      watchlist = data.watchlist || [];
-    }catch(err){
-      console.log("Load watchlist error:", err);
-      watchlist = [];
-    }
-  }
-
-  function renderWatchlist(){
-    const grid = document.getElementById("watchlistGrid");
-    const empty = document.getElementById("emptyState");
-    const count = document.getElementById("watchlistCount");
-
-    count.innerText = watchlist.length;
-
-    if(!watchlist.length){
-      grid.innerHTML = "";
-      empty.style.display = "block";
-      return;
-    }
-
-    empty.style.display = "none";
-    grid.innerHTML = watchlist.map(createCard).join("");
-    fetchPrices();
-  }
-
-  function fetchPrices(){
-    watchlist.forEach(stock => {
-      fetch(`/get_price/${encodeURIComponent(stock.symbol)}`)
-        .then(res => res.json())
-        .then(data => {
-          const el = document.getElementById(stock.symbol);
-          if(!el) return;
-
-          if(data.error){
-            el.innerHTML = "Price unavailable";
-            return;
-          }
-
-          el.innerHTML = formatPrice(stock.symbol, data);
-        })
-        .catch(() => {
-          const el = document.getElementById(stock.symbol);
-          if(el) el.innerHTML = "Price unavailable";
-        });
+  try{
+    await fetch("/watchlist/remove", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        user_id: userId,
+        symbol: symbol
+      })
     });
+
+    // UI update instantly
+    watchlist = watchlist.filter(s => s.symbol !== symbol);
+    renderWatchlist();
+
+  }catch(err){
+    console.log(err);
+  }
+}
+
+// 🔥 CARD CREATE (IMPORTANT PART)
+function createCard(stock){
+  return `
+    <div class="card" onclick="handleCardClick(event, '${stock.symbol}', '${stock.name}')">
+
+      <div class="remove-btn" onclick="handleRemoveClick(event, '${stock.symbol}')">✖</div>
+
+      <div class="company">
+        <h4>${stock.name}</h4>
+        <div class="meta-row">
+          <span class="pill">Saved</span>
+          <span class="pill ticker">${stock.symbol}</span>
+        </div>
+      </div>
+
+      <div class="price" id="price-${stock.symbol}">Loading...</div>
+    </div>
+  `;
+}
+// 🔥 LOAD WATCHLIST
+async function loadWatchlist(){
+  const userId = getCurrentUserId();
+
+  if(!userId){
+    watchlist = [];
+    return;
   }
 
-  window.addEventListener("load", async function(){
-    await loadWatchlist();
-    renderWatchlist();
-    setInterval(fetchPrices, 30000);
+  try{
+    const res = await fetch(`/watchlist/${userId}`);
+    const data = await res.json();
+    watchlist = data.watchlist || [];
+  }catch(err){
+    watchlist = [];
+  }
+}
+
+// 🔥 RENDER
+function renderWatchlist(){
+  const grid = document.getElementById("watchlistGrid");
+  const empty = document.getElementById("emptyState");
+  const count = document.getElementById("watchlistCount");
+
+  count.innerText = watchlist.length;
+
+  if(!watchlist.length){
+    grid.innerHTML = "";
+    empty.style.display = "block";
+    return;
+  }
+
+  empty.style.display = "none";
+  grid.innerHTML = watchlist.map(createCard).join("");
+
+  attachEvents();
+  fetchPrices();
+}
+
+// 🔥 MAIN FIX (EVENT CONTROL)
+function attachEvents(){
+
+  // CARD CLICK
+  document.querySelectorAll(".card").forEach(card => {
+    card.addEventListener("click", function(e){
+
+      // ❌ agar remove btn pe click hai → ignore
+      if(e.target.classList.contains("remove-btn")) return;
+
+      const symbol = this.dataset.symbol;
+      const name = this.dataset.name;
+
+      openStock(symbol, name);
+    });
   });
+
+  // REMOVE CLICK
+  document.querySelectorAll(".remove-btn").forEach(btn => {
+    btn.addEventListener("click", function(e){
+      e.stopPropagation();   // ⭐ IMPORTANT
+
+      const symbol = this.dataset.symbol;
+      removeFromWatchlist(symbol);
+    });
+  });
+}
+
+// 🔥 PRICE FETCH
+function fetchPrices(){
+  watchlist.forEach(stock => {
+    fetch(`/get_price/${stock.symbol}`)
+      .then(res => res.json())
+      .then(data => {
+        const el = document.getElementById("price-" + stock.symbol);
+
+        if(!el) return;
+
+        if(data.error){
+          el.innerHTML = "Unavailable";
+          return;
+        }
+
+        const currency = stock.symbol.includes(".NS") ? "₹" : "$";
+        const up = Number(data.change) >= 0;
+
+        el.innerHTML = `
+          <span class="price-main">${currency}${Number(data.price).toFixed(2)}</span>
+          <span class="price-change ${up ? "up" : "down"}">
+            ${up ? "▲" : "▼"} ${Math.abs(data.change).toFixed(2)}
+          </span>
+        `;
+      });
+  });
+}
+
+// 🔥 INIT
+window.onload = async function(){
+  await loadWatchlist();
+  renderWatchlist();
+};
 </script>
 </body>
 </html>
