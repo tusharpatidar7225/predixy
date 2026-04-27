@@ -7,7 +7,10 @@ import os
 from lstm_model import predict_prices, predict_intraday_prices
 app = Flask(__name__)
 CORS(app)
+
 DATABASE = "database.db"
+
+
 def init_db():
     with sqlite3.connect(DATABASE) as conn:
         c = conn.cursor()
@@ -306,36 +309,137 @@ def check_watchlist():
 def get_intraday_prediction(symbol):
     try:
         from datetime import timedelta
+        import numpy as np
+        import pandas as pd
 
+        # Today actual data
         stock = yf.Ticker(symbol)
-        hist_today = stock.history(period="1d", interval="5m", auto_adjust=False)
+        today_hist = stock.history(period="1d", interval="5m", auto_adjust=False)
 
-        if hist_today.empty:
+        if today_hist.empty:
             return jsonify({"times": [], "prices": []}), 200
 
-        last_index = hist_today.index[-1]
+        # Market timing
+        if symbol.endswith(".NS"):
+            open_hour, open_minute = 9, 15
+            close_hour, close_minute = 15, 30
+        else:
+            open_hour, open_minute = 9, 30
+            close_hour, close_minute = 16, 0
 
-        close_hour, close_minute = (15, 30) if symbol.endswith(".NS") else (16, 0)
-        close_time = last_index.replace(hour=close_hour, minute=close_minute)
+        first_index = today_hist.index[0]
+        market_open = first_index.replace(hour=open_hour, minute=open_minute)
+        market_close = first_index.replace(hour=close_hour, minute=close_minute)
 
-        future_times = []
-        next_time = last_index + timedelta(minutes=5)
+        # Full day 5-min time labels
+        full_times = []
+        t = market_open
+        while t <= market_close:
+            full_times.append(t)
+            t += timedelta(minutes=5)
 
-        while next_time <= close_time:
-            future_times.append(next_time)
-            next_time += timedelta(minutes=5)
+        full_labels = [x.strftime("%H:%M") for x in full_times]
 
-        steps = len(future_times)
+        # Past 60 days intraday data
+        past = yf.download(
+            symbol,
+            period="60d",
+            interval="5m",
+            auto_adjust=False,
+            progress=False
+        )
 
-        predicted_prices = predict_intraday_prices(symbol, steps=steps)
+        if past is None or past.empty:
+            return jsonify({"times": full_labels, "prices": []}), 200
 
-        if predicted_prices is None:
-            return jsonify({"times": [], "prices": []}), 200
+        # Close column handle
+        close = past["Close"]
+        if isinstance(close, pd.DataFrame):
+            close = close.iloc[:, 0]
+
+        df = pd.DataFrame({"Close": close}).dropna()
+        df["time"] = df.index.strftime("%H:%M")
+        df["date"] = df.index.date
+
+        # Har day ka open se relative movement nikalo
+        patterns = []
+
+        for date, group in df.groupby("date"):
+            group = group.copy()
+            group = group.copy()
+            if len(group) < 20:
+                continue
+
+            day_open = float(group["Close"].iloc[0])
+            if day_open <= 0:
+                continue
+
+            movement = {}
+
+            for i, time_key in enumerate(full_labels):
+                if i < len(group):
+                    price = float(group["Close"].iloc[i])
+                    movement[time_key] = ((price - day_open) / day_open) * 100
+
+            patterns.append(movement)
+
+        if not patterns:
+            return jsonify({"times": full_labels, "prices": []}), 200
+
+        # Average historical intraday pattern
+        avg_pattern = []
+
+        for time_key in full_labels:
+            vals = [p[time_key] for p in patterns if time_key in p]
+
+            if vals:
+                avg_pattern.append(float(np.mean(vals)))
+            else:
+                avg_pattern.append(0.0)
+
+        # Today open ke according predicted price
+        today_open = float(today_hist["Open"].iloc[0])
+
+        predicted_prices = []
+        for pct_move in avg_pattern:
+            price = today_open * (1 + pct_move / 100)
+            predicted_prices.append(round(float(price), 2))
+
+        # Actual data ke trend ke according prediction ko adjust karo
+        actual_close = float(today_hist["Close"].iloc[-1])
+        actual_last_time = today_hist.index[-1].strftime("%H:%M")
+
+        if actual_last_time in full_labels:
+            idx = full_labels.index(actual_last_time)
+
+            if idx < len(predicted_prices):
+                predicted_at_now = predicted_prices[idx]
+                adjustment = actual_close - predicted_at_now
+
+                # Smooth adjustment: start se end tak gradually apply
+                for i in range(len(predicted_prices)):
+                    if i <= idx:
+                        factor = i / max(idx, 1)
+                    else:
+                        factor = 1
+
+                    predicted_prices[i] = round(
+                        predicted_prices[i] + adjustment * factor,
+                        2
+                    )
+
+        # Thodi natural volatility add karo, fixed seed so refresh pe graph stable rahe
+        seed = sum(ord(c) for c in symbol)
+        rng = np.random.default_rng(seed)
+
+        for i in range(1, len(predicted_prices) - 1):
+            noise = rng.normal(0, today_open * 0.0008)
+            predicted_prices[i] = round(predicted_prices[i] + noise, 2)
 
         return jsonify({
-            "times": [t.strftime("%H:%M") for t in future_times],
+            "times": full_labels,
             "prices": predicted_prices
-        })
+        }), 200
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
@@ -343,4 +447,4 @@ def get_intraday_prediction(symbol):
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=port, debug=True)
