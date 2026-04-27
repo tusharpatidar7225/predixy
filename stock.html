@@ -599,25 +599,25 @@
         <div class="info-card">
           <div class="info-label">Open</div>
           <div class="info-value" id="openVal">--</div>
-          <div class="info-sub">Market open price</div>
+          <div class="info-sub">Today's open price</div>
         </div>
 
         <div class="info-card">
           <div class="info-label">High</div>
           <div class="info-value" id="highVal">--</div>
-          <div class="info-sub">Market high price</div>
+          <div class="info-sub">Today's high</div>
         </div>
 
         <div class="info-card">
           <div class="info-label">Low</div>
           <div class="info-value" id="lowVal">--</div>
-          <div class="info-sub">Market low price</div>
+          <div class="info-sub">Today's low</div>
         </div>
 
         <div class="info-card">
           <div class="info-label">Volume</div>
           <div class="info-value" id="volumeVal">--</div>
-          <div class="info-sub">Market volume</div>
+          <div class="info-sub">Today's volume</div>
         </div>
       </div>
 
@@ -765,6 +765,9 @@ async function loadGraph(){
     const d = await graphRes.json();
     if(d.error) return;
 
+    const predRes = await fetch(`/get_intraday_prediction/${encodeURIComponent(symbol)}`);
+    const pred = await predRes.json();
+
     document.getElementById("openVal").innerText = `${currency}${d.open}`;
     document.getElementById("highVal").innerText = `${currency}${d.high}`;
     document.getElementById("lowVal").innerText = `${currency}${d.low}`;
@@ -773,26 +776,32 @@ async function loadGraph(){
     const ctx = document.getElementById("stockChart").getContext("2d");
     if(stockChart) stockChart.destroy();
 
+    const actualTimes = d.times || [];
+    const actualPrices = d.prices || [];
+
+    const predictionTimes = pred.times || [];
+    const predictionPrices = pred.prices || [];
+
+    const allLabels = [...new Set([...actualTimes, ...predictionTimes])];
+
+    const actualData = allLabels.map(time => {
+      const index = actualTimes.indexOf(time);
+      return index !== -1 ? actualPrices[index] : null;
+    });
+
+    const predictedData = allLabels.map(time => {
+      const index = predictionTimes.indexOf(time);
+      return index !== -1 ? predictionPrices[index] : null;
+    });
+
     const gradient = ctx.createLinearGradient(0, 0, 0, 420);
     gradient.addColorStop(0, "rgba(34,197,94,0.22)");
     gradient.addColorStop(1, "rgba(34,197,94,0.03)");
 
-    const predictedGradient = ctx.createLinearGradient(0, 0, 0, 420);
-    predictedGradient.addColorStop(0, "rgba(56,189,248,0.14)");
-    predictedGradient.addColorStop(1, "rgba(56,189,248,0.02)");
-
-    const labels = d.times || [];
-    const actualData = d.prices || [];
-
-    const predictedData = actualData.map((price, i) => {
-      const offset = Math.sin(i * 0.45) * 0.55 + 0.35;
-      return Number((Number(price) + offset).toFixed(2));
-    });
-
     stockChart = new Chart(ctx, {
       type: "line",
       data: {
-        labels: labels,
+        labels: allLabels,
         datasets: [
           {
             label: "Actual Price",
@@ -804,25 +813,18 @@ async function loadGraph(){
             borderWidth: 3,
             pointRadius: 0,
             pointHoverRadius: 5,
-            pointHoverBackgroundColor: "#22c55e",
-            pointHoverBorderColor: "#d1fae5",
-            pointHoverBorderWidth: 2,
             hitRadius: 18
           },
           {
             label: "Predicted Price",
             data: predictedData,
             borderColor: "#38bdf8",
-            backgroundColor: predictedGradient,
             fill: false,
             tension: 0.42,
             borderWidth: 3,
             borderDash: [7, 7],
             pointRadius: 0,
             pointHoverRadius: 5,
-            pointHoverBackgroundColor: "#38bdf8",
-            pointHoverBorderColor: "#e0f2fe",
-            pointHoverBorderWidth: 2,
             hitRadius: 18
           }
         ]
@@ -839,8 +841,7 @@ async function loadGraph(){
             display: true,
             labels: {
               color: "#dbeafe",
-              usePointStyle: true,
-              boxWidth: 10
+              usePointStyle: true
             }
           },
           tooltip: {
@@ -849,7 +850,6 @@ async function loadGraph(){
             borderWidth: 1,
             titleColor: "#ffffff",
             bodyColor: "#dbeafe",
-            displayColors: true,
             padding: 12,
             callbacks: {
               label: function(context){
@@ -899,8 +899,7 @@ async function loadGraph(){
   }catch(err){
     console.log("Graph fetch error:", err);
   }
-}	
-
+}
     function getCurrentUserId(){
       return localStorage.getItem("currentUserId");
     }
