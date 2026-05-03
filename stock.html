@@ -4,41 +4,87 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Predixy Stock Details</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@1.3.1/dist/chartjs-adapter-luxon.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-financial@0.2.1/dist/chartjs-chart-financial.min.js"></script>
 
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
     :root{
-      --bg:#07111f;
-      --line:rgba(148,163,184,0.16);
-      --text:#e5eefc;
-      --muted:#91a1bb;
+      --bg:#020617;
+      --panel:rgba(15,23,42,.68);
+      --panel2:rgba(30,41,59,.42);
+      --line:rgba(148,163,184,.15);
+      --line-strong:rgba(125,211,252,.22);
+      --text:#f8fafc;
+      --muted:#9fb2cc;
       --green:#22c55e;
       --blue:#38bdf8;
+      --cyan:#22d3ee;
       --red:#ef4444;
-      --shadow:0 18px 50px rgba(0,0,0,0.34);
+      --yellow:#facc15;
+      --purple:#a78bfa;
+      --shadow:0 28px 80px rgba(0,0,0,.46);
+      --soft-shadow:0 16px 44px rgba(0,0,0,.30);
+      --radius:28px;
     }
 
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:"Inter","Segoe UI",system-ui,sans-serif;
-    }
+    *{margin:0;padding:0;box-sizing:border-box;font-family:"Outfit","Inter","Segoe UI",system-ui,sans-serif;}
+    html{scroll-behavior:smooth;}
 
     body{
       min-height:100vh;
       color:var(--text);
-      background:
-        radial-gradient(900px 500px at -5% -10%, rgba(56,189,248,0.12), transparent 55%),
-        radial-gradient(800px 420px at 105% 0%, rgba(34,197,94,0.10), transparent 52%),
-        linear-gradient(180deg, #07111f 0%, #08101d 100%);
-      padding:24px;
+      background:#020617;
+      background-image:
+        radial-gradient(circle at 0% 0%, rgba(34,211,238,.20) 0%, transparent 34%),
+        radial-gradient(circle at 100% 0%, rgba(139,92,246,.20) 0%, transparent 38%),
+        radial-gradient(circle at 62% 100%, rgba(34,197,94,.10) 0%, transparent 48%);
+      background-attachment:fixed;
+      padding:26px;
+      overflow-x:hidden;
     }
 
-    .page{
-      max-width:1400px;
-      margin:0 auto;
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      z-index:-2;
+      pointer-events:none;
+      background:
+        linear-gradient(rgba(34,211,238,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(34,211,238,.035) 1px, transparent 1px);
+      background-size:44px 44px;
+      mask-image:radial-gradient(circle at 50% 18%, black 0%, transparent 72%);
+      animation:gridMove 22s linear infinite;
     }
+
+    body::after{
+      content:"";
+      position:fixed;
+      inset:-24%;
+      z-index:-3;
+      pointer-events:none;
+      background:
+        radial-gradient(circle at 16% 18%, rgba(34,211,238,.28), transparent 28%),
+        radial-gradient(circle at 82% 12%, rgba(139,92,246,.20), transparent 30%),
+        radial-gradient(circle at 62% 86%, rgba(16,185,129,.14), transparent 34%);
+      filter:blur(28px);
+      animation:aurora 14s ease-in-out infinite alternate;
+    }
+
+    @keyframes gridMove{from{background-position:0 0,0 0;}to{background-position:44px 44px,44px 44px;}}
+    @keyframes aurora{from{transform:translate3d(-1%,-1%,0) scale(1);}to{transform:translate3d(2%,2%,0) scale(1.08);}}
+
+    ::-webkit-scrollbar{width:8px;}
+    ::-webkit-scrollbar-track{background:#020617;}
+    ::-webkit-scrollbar-thumb{background:linear-gradient(180deg,rgba(56,189,248,.45),rgba(139,92,246,.35));border-radius:999px;}
+    ::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,rgba(56,189,248,.65),rgba(139,92,246,.55));}
+
+    .page{width:min(1380px,100%);margin:0 auto;}
 
     .topbar{
       display:flex;
@@ -47,537 +93,149 @@
       gap:14px;
       margin-bottom:18px;
       flex-wrap:wrap;
+      position:sticky;
+      top:14px;
+      z-index:50;
+      backdrop-filter:blur(10px);
     }
+    .topbar-right{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
 
-    .topbar-right{
-      display:flex;
-      gap:12px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-
-    .back-btn,
-    .top-pill,
-    .watchlist-top-btn{
+    .back-btn,.top-pill,.watchlist-top-btn{
       border:none;
       outline:none;
       cursor:pointer;
       padding:12px 18px;
       border-radius:999px;
-      color:var(--text);
-      font-weight:700;
-      background:linear-gradient(180deg, rgba(18,35,58,0.9), rgba(9,18,31,0.9));
-      border:1px solid var(--line);
-      box-shadow:var(--shadow);
-      transition:all .25s ease;
+      color:#eaf6ff;
+      font-weight:800;
+      letter-spacing:-.01em;
+      background:linear-gradient(180deg, rgba(18,35,58,.92), rgba(7,15,27,.94));
+      border:1px solid rgba(148,163,184,.16);
+      box-shadow:0 18px 45px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.05);
+      transition:all .28s ease;
       font-size:14px;
+      position:relative;
+      overflow:hidden;
     }
+    .back-btn::before,.top-pill::before,.watchlist-top-btn::before{
+      content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent,rgba(255,255,255,.16),transparent);transform:translateX(-120%);transition:.55s ease;pointer-events:none;
+    }
+    .back-btn:hover,.watchlist-top-btn:hover{transform:translateY(-3px);border-color:rgba(56,189,248,.34);box-shadow:0 22px 60px rgba(0,0,0,.44),0 0 28px rgba(34,211,238,.10);}
+    .back-btn:hover::before,.top-pill:hover::before,.watchlist-top-btn:hover::before{transform:translateX(120%);}
 
-    .market-open-dot{
-      display:inline-block;
-      width:10px;
-      height:10px;
-      border-radius:50%;
-      background:var(--green);
-      margin-right:8px;
-      box-shadow:0 0 10px rgba(34,197,94,0.8);
+    .market-open-dot,.market-closed-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;}
+    .market-open-dot{background:var(--green);box-shadow:0 0 14px rgba(34,197,94,.9);animation:pulseDot 1.6s ease-in-out infinite;}
+    .market-closed-dot{background:var(--red);box-shadow:0 0 14px rgba(239,68,68,.85);}
+    @keyframes pulseDot{0%,100%{transform:scale(1);opacity:1;}50%{transform:scale(1.25);opacity:.7;}}
+
+    .hero,.chart-card,.info-card,.prediction-card,.side-card{
+      --mx:72%;--my:30%;
+      position:relative;
+      overflow:hidden;
+      border:1px solid var(--line);
+      background:
+        radial-gradient(360px 210px at var(--mx) var(--my), rgba(56,189,248,.16), transparent 58%),
+        linear-gradient(145deg, rgba(15,23,42,.78), rgba(30,41,59,.42));
+      box-shadow:var(--soft-shadow), inset 0 1px 0 rgba(255,255,255,.05);
+      backdrop-filter:blur(18px);
+      -webkit-backdrop-filter:blur(18px);
+      transition:transform .28s ease,border-color .28s ease,box-shadow .28s ease,background .28s ease;
     }
+    .hero::after,.chart-card::after,.info-card::after,.prediction-card::after,.side-card::after{
+      content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(110deg,transparent 0 34%,rgba(255,255,255,.11) 45%,transparent 58% 100%);transform:translateX(-130%) skewX(-10deg);opacity:.65;transition:transform .75s ease;
+    }
+    .hero:hover::after,.chart-card:hover::after,.info-card:hover::after,.prediction-card:hover::after,.side-card:hover::after{transform:translateX(130%) skewX(-10deg);}
 
     .hero{
-      border:1px solid var(--line);
-      border-radius:28px;
-      padding:24px;
-      background:
-        radial-gradient(420px 180px at 8% 0%, rgba(34,197,94,0.12), transparent 60%),
-        radial-gradient(320px 180px at 85% 0%, rgba(56,189,248,0.09), transparent 60%),
-        linear-gradient(180deg, rgba(18,35,58,0.82), rgba(8,16,29,0.90));
-      box-shadow:var(--shadow);
+      border-radius:34px;
+      padding:28px;
       margin-bottom:20px;
+      box-shadow:var(--shadow),0 0 0 1px rgba(125,211,252,.04) inset;
     }
-
-    .hero-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:20px;
-      flex-wrap:wrap;
-    }
-
-    .stock-meta{
-      flex:1;
-      min-width:280px;
-    }
-
+    .hero:hover,.chart-card:hover,.info-card:hover,.prediction-card:hover,.side-card:hover{border-color:rgba(56,189,248,.30);box-shadow:0 32px 90px rgba(0,0,0,.48),0 0 44px rgba(34,211,238,.10),inset 0 1px 0 rgba(255,255,255,.08);}
+    .hero-head{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-start;gap:22px;flex-wrap:wrap;}
+    .stock-meta{flex:1;min-width:280px;}
     .stock-meta h1{
-      font-size:34px;
-      font-weight:800;
-      letter-spacing:-0.03em;
-      margin-bottom:10px;
-    }
-
-    .ticker-row{
-      display:flex;
-      gap:10px;
-      flex-wrap:wrap;
-      align-items:center;
-      margin-bottom:16px;
-    }
-
-    .pill{
-      font-size:12px;
-      color:#c7d5ea;
-      padding:7px 12px;
-      border-radius:999px;
-      border:1px solid rgba(255,255,255,0.08);
-      background:rgba(255,255,255,0.04);
-    }
-
-    .ticker{
-      color:#7dd3fc;
-      background:rgba(56,189,248,0.10);
-      border-color:rgba(56,189,248,0.20);
-    }
-
-    .live-price{
-      font-size:42px;
-      font-weight:800;
-      line-height:1.1;
-      color:#f8fbff;
-      letter-spacing:-0.03em;
-      margin-bottom:10px;
-    }
-
-    .price-badge{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      padding:8px 12px;
-      border-radius:999px;
-      font-size:13px;
-      font-weight:700;
-      background:rgba(255,255,255,0.04);
-    }
-
-    .price-badge.up{
-      color:var(--green);
-      background:rgba(34,197,94,0.10);
-    }
-
-    .price-badge.down{
-      color:#f87171;
-      background:rgba(239,68,68,0.10);
-    }
-
-    .hero-side{
-      width:260px;
-      display:grid;
-      gap:14px;
-    }
-
-    .side-card,
-    .info-card,
-    .prediction-card,
-    .selected-prediction{
-      position:relative;
-      overflow:hidden;
-      padding:18px;
-      border-radius:22px;
-      border:1px solid rgba(255,255,255,0.10);
-      background:rgba(255,255,255,0.05);
-      backdrop-filter:blur(12px);
-      -webkit-backdrop-filter:blur(12px);
-      transition:all 0.35s ease;
-      box-shadow:
-        0 10px 30px rgba(0,0,0,0.18),
-        inset 0 1px 0 rgba(255,255,255,0.04);
-    }
-
-    .side-card::before,
-    .info-card::before,
-    .prediction-card::before,
-    .selected-prediction::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      border-radius:inherit;
-      background:
-        radial-gradient(circle at 88% 82%, rgba(53,155,255,0.20), transparent 22%),
-        radial-gradient(circle at 78% 70%, rgba(0,212,255,0.10), transparent 28%),
-        linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));
-      opacity:1;
-      pointer-events:none;
-    }
-
-    .side-card > *,
-    .info-card > *,
-    .prediction-card > *,
-    .selected-prediction > *{
-      position:relative;
-      z-index:2;
-    }
-
-    .side-label,
-    .info-label{
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:#7d90aa;
-      margin-bottom:8px;
-    }
-
-    .side-value{
-      font-size:28px;
-      font-weight:800;
-      color:#f8fbff;
-    }
-
-    .chart-card{
-      position:relative;
-      overflow:hidden;
-      border:1px solid var(--line);
-      border-radius:28px;
-      padding:20px;
-      background:rgba(255,255,255,0.05);
-      backdrop-filter:blur(10px);
-      box-shadow:var(--shadow);
-      margin-bottom:24px;
-    }
-
-    .chart-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap:12px;
-      margin-bottom:18px;
-      flex-wrap:wrap;
-    }
-
-    .chart-head h3{
-      font-size:20px;
-      font-weight:800;
-      margin-bottom:4px;
-    }
-
-    .chart-head p{
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .chart-box{
-      height:520px;
-      width:100%;
-      border-radius:22px;
-      padding:14px;
-      background:linear-gradient(180deg, rgba(2,6,23,0.94), rgba(3,10,24,0.96));
-      border:1px solid rgba(255,255,255,0.04);
-      overflow:hidden;
-    }
-
-    canvas{
-      width:100% !important;
-      height:100% !important;
-      display:block;
-    }
-
-    .info-grid{
-      display:grid;
-      grid-template-columns:repeat(4, minmax(160px,1fr));
-      gap:16px;
-      margin-bottom:20px;
-    }
-
-    .prediction-grid{
-      display:grid;
-      grid-template-columns:repeat(3, minmax(220px,1fr));
-      gap:16px;
-      margin-bottom:18px;
-    }
-
-    .prediction-card{
-      cursor:default;
-      border:1px solid rgba(255,255,255,0.10);
-    }
-
-    .prediction-card:hover{
-      transform:translateY(-4px);
-      border-color:rgba(56,189,248,0.24);
-    }
-
-    .prediction-card.active{
-      border-color:rgba(255,255,255,0.10);
-      box-shadow:
-        0 10px 30px rgba(0,0,0,0.18),
-        inset 0 1px 0 rgba(255,255,255,0.04);
-    }
-
-    .prediction-title{
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      color:#7d90aa;
-      margin-bottom:10px;
-    }
-
-    .prediction-value{
-      font-size:24px;
-      font-weight:800;
-      color:#f8fbff;
-      margin-bottom:6px;
-    }
-
-    .prediction-sub{
-      color:var(--muted);
-      font-size:13px;
-    }
-
-    .selected-prediction{
-      min-height:120px;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-    }
-
-    .selected-label{
-      font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.14em;
-      color:#7d90aa;
-      margin-bottom:10px;
-    }
-
-    .selected-value{
-      font-size:34px;
+      font-size:40px;
       font-weight:900;
-      color:#f8fbff;
-      margin-bottom:8px;
+      letter-spacing:-.04em;
+      margin-bottom:12px;
+      background:linear-gradient(90deg,#fff,#7dd3fc,#a7f3d0,#fff);
+      background-size:260% 100%;
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      animation:titleShine 6s ease-in-out infinite;
     }
+    @keyframes titleShine{0%,100%{background-position:0% 50%;}50%{background-position:100% 50%;}}
 
-    .selected-sub{
-      color:var(--muted);
-      font-size:14px;
-    }
+    .ticker-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:18px;}
+    .pill{font-size:12px;font-weight:800;letter-spacing:.03em;color:#c7d5ea;padding:8px 13px;border-radius:999px;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.045);box-shadow:inset 0 1px 0 rgba(255,255,255,.04);}
+    .ticker{color:#7dd3fc;background:rgba(56,189,248,.12);border-color:rgba(56,189,248,.24);}
+    .live-price{font-size:48px;font-weight:900;line-height:1.05;color:#f8fbff;letter-spacing:-.045em;margin-bottom:12px;text-shadow:0 0 28px rgba(255,255,255,.08);}
+    .price-badge{display:inline-flex;align-items:center;gap:8px;padding:9px 13px;border-radius:999px;font-size:14px;font-weight:900;background:rgba(255,255,255,.05);}
+    .price-badge.up{color:var(--green);background:rgba(34,197,94,.14);box-shadow:0 0 18px rgba(34,197,94,.12);}
+    .price-badge.down{color:#f87171;background:rgba(239,68,68,.14);box-shadow:0 0 18px rgba(239,68,68,.12);}
 
-    .info-value{
-      font-size:24px;
-      font-weight:800;
-      color:#f8fbff;
-      letter-spacing:-0.02em;
-    }
+    .hero-side{width:280px;display:grid;gap:14px;}
+    .side-card{padding:20px;border-radius:24px;}
+    .side-label,.info-label{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:#8aa2be;margin-bottom:9px;font-weight:800;}
+    .side-value{font-size:30px;font-weight:900;color:#f8fbff;letter-spacing:-.035em;}
 
-    .info-sub{
-      margin-top:6px;
-      color:var(--muted);
-      font-size:13px;
-    }
+    .chart-card{border-radius:32px;padding:22px;margin-bottom:24px;}
+    .chart-head{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:18px;flex-wrap:wrap;border-bottom:1px solid rgba(125,211,252,.16);padding-bottom:12px;}
+    .chart-head h3{font-size:24px;font-weight:900;letter-spacing:-.03em;margin-bottom:5px;color:#f8fbff;}
+    .chart-head p{color:var(--muted);font-size:13px;}
+    .chart-box{height:540px;width:100%;border-radius:24px;padding:14px;background:linear-gradient(180deg, rgba(2,6,23,.96), rgba(3,10,24,.98));border:1px solid rgba(125,211,252,.10);overflow:hidden;position:relative;z-index:2;box-shadow:inset 0 0 0 1px rgba(255,255,255,.02), inset 0 30px 80px rgba(56,189,248,.025);}
+    .chart-box::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(56,189,248,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(56,189,248,.025) 1px,transparent 1px);background-size:42px 42px;pointer-events:none;opacity:.8;}
+    canvas{position:relative;z-index:2;width:100% !important;height:100% !important;display:block;}
 
+    .info-grid{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));gap:16px;margin-bottom:16px;}
+    .prediction-grid{display:grid;grid-template-columns:repeat(3,minmax(220px,1fr));gap:16px;margin-bottom:18px;}
+    .indicator-grid{display:grid;grid-template-columns:repeat(3,minmax(160px,1fr));gap:16px;margin-bottom:20px;}
+    .info-card,.prediction-card,.selected-prediction{padding:20px;border-radius:24px;min-height:108px;}
+    .info-card:hover,.prediction-card:hover{transform:translateY(-7px) scale(1.012);}
+    .prediction-title{font-size:12px;text-transform:uppercase;letter-spacing:.14em;color:#8aa2be;margin-bottom:10px;font-weight:800;}
+    .prediction-value,.info-value{font-size:27px;font-weight:900;color:#f8fbff;letter-spacing:-.035em;position:relative;z-index:2;}
+    .prediction-sub,.info-sub{margin-top:7px;color:#9fb2cc;font-size:13px;position:relative;z-index:2;}
 
+    .error-box{display:none;margin-top:12px;color:#fecaca;background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.22);border-radius:16px;padding:12px;font-size:13px;}
 
-    /* ===== FRONTPAGE CARD HOVER EFFECT ON STOCK PAGE BOXES ===== */
-    .hero,
-    .chart-card,
-    .side-card,
-    .info-card,
-    .prediction-card{
-      position:relative;
-      overflow:hidden;
-      cursor:pointer;
-      transition:all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      will-change:transform;
-    }
+    @keyframes cardIn{from{opacity:0;transform:translateY(16px) scale(.98);filter:blur(6px);}to{opacity:1;transform:translateY(0) scale(1);filter:blur(0);}}
+    .info-card,.prediction-card,.side-card,.chart-card,.hero{animation:cardIn .65s cubic-bezier(.2,.9,.2,1) both;}
+    .info-card:nth-child(2),.prediction-card:nth-child(2){animation-delay:.04s;}
+    .info-card:nth-child(3),.prediction-card:nth-child(3){animation-delay:.08s;}
+    .info-card:nth-child(4){animation-delay:.12s;}
 
-    .hero::before,
-    .chart-card::before,
-    .side-card::before,
-    .info-card::before,
-    .prediction-card::before{
-      content:"";
-      position:absolute;
-      inset:0;
-      border-radius:inherit;
-      background:
-        radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.15), transparent 30%),
-        radial-gradient(circle at 0% 100%, rgba(139, 92, 246, 0.05), transparent 40%);
-      opacity:0.5;
-      pointer-events:none;
-      transition:opacity 0.4s ease;
-      z-index:0;
-    }
-
-    .hero::after,
-    .chart-card::after,
-    .side-card::after,
-    .info-card::after,
-    .prediction-card::after{
-      content:"";
-      position:absolute;
-      inset:0;
-      background:linear-gradient(105deg, transparent 20%, rgba(255,255,255,0.10) 25%, transparent 30%);
-      transform:translateX(-150%);
-      transition:transform 0.6s ease;
-      pointer-events:none;
-      z-index:1;
-    }
-
-    .hero:hover,
-    .chart-card:hover,
-    .side-card:hover,
-    .info-card:hover,
-    .prediction-card:hover{
-      transform:translateY(-12px) scale(1.02);
-      background:rgba(255,255,255,0.05);
-      border-color:rgba(255,255,255,0.20);
-      box-shadow:
-        0 30px 60px rgba(0,0,0,0.40),
-        0 0 40px rgba(59,130,246,0.10);
-    }
-
-    .hero:hover::before,
-    .chart-card:hover::before,
-    .side-card:hover::before,
-    .info-card:hover::before,
-    .prediction-card:hover::before{
-      opacity:1;
-    }
-
-    .hero:hover::after,
-    .chart-card:hover::after,
-    .side-card:hover::after,
-    .info-card:hover::after,
-    .prediction-card:hover::after{
-      transform:translateX(150%);
-    }
-
-    .hero > *,
-    .chart-card > *,
-    .side-card > *,
-    .info-card > *,
-    .prediction-card > *{
-      position:relative;
-      z-index:2;
-    }
-
-    /* ===== NO HOVER ONLY FOR TOP PRICE HERO BOX ===== */
-    .hero.no-hover{
-      cursor:default !important;
-      transform:none !important;
-    }
-
-    .hero.no-hover::before,
-    .hero.no-hover::after{
-      display:none !important;
-      content:none !important;
-    }
-
-    .hero.no-hover:hover{
-      transform:none !important;
-      background:
-        radial-gradient(420px 180px at 8% 0%, rgba(34,197,94,0.12), transparent 60%),
-        radial-gradient(320px 180px at 85% 0%, rgba(56,189,248,0.09), transparent 60%),
-        linear-gradient(180deg, rgba(18,35,58,0.82), rgba(8,16,29,0.90)) !important;
-      border-color:var(--line) !important;
-      box-shadow:var(--shadow) !important;
-    }
-
-    @media (max-width: 1100px){
-      .info-grid{
-        grid-template-columns:repeat(2, minmax(160px,1fr));
-      }
-      .prediction-grid{
-        grid-template-columns:1fr;
-      }
-      .hero-side{
-        width:100%;
-      }
-    }
-
-    @media (max-width: 768px){
-      body{
-        padding:14px;
-      }
-
-      .hero, .chart-card{
-        padding:18px;
-        border-radius:22px;
-      }
-
-      .stock-meta h1{
-        font-size:28px;
-      }
-
-      .live-price{
-        font-size:34px;
-      }
-
-      .chart-box{
-        height:320px;
-      }
-
-      .info-grid{
-        grid-template-columns:1fr;
-      }
-
-      .hero-head{
-        flex-direction:column;
-      }
-
-      .hero-side{
-        width:100%;
-        display:grid;
-        grid-template-columns:1fr;
-      }
-
-      .topbar{
-        flex-direction:column;
-        align-items:stretch;
-      }
-
-      .topbar-right{
-        width:100%;
-        justify-content:stretch;
-      }
-
-      .back-btn,
-      .top-pill,
-      .watchlist-top-btn{
-        width:100%;
-        text-align:center;
-      }
-
-      .selected-value{
-        font-size:28px;
-      }
-    }
+    @media (max-width:900px){.info-grid,.prediction-grid,.indicator-grid{grid-template-columns:1fr 1fr;}.hero-side{width:100%;}.stock-meta h1{font-size:34px}.live-price{font-size:40px}.chart-box{height:480px;}}
+    @media (max-width:560px){body{padding:14px}.stock-meta h1{font-size:30px}.live-price{font-size:35px}.chart-box{height:430px}.info-grid,.prediction-grid,.indicator-grid{grid-template-columns:1fr}.hero,.chart-card{border-radius:24px;padding:18px}}
   </style>
 </head>
 <body>
   <div class="page">
     <div class="topbar">
       <button class="back-btn" onclick="goBack()">← Back to Dashboard</button>
-
       <div class="topbar-right">
-        <div id="marketTopStatus" class="top-pill">
-          <span class="market-open-dot"></span>Market Open
-        </div>
-        <button id="watchlistTopBtn" class="watchlist-top-btn" onclick="openWishlistPage()">❤ Watchlist</button>
+        <div class="top-pill" id="marketTopStatus"><span class="market-closed-dot"></span>Checking...</div>
+        <button class="watchlist-top-btn" id="watchlistBtn" onclick="toggleStockWatchlist()">♡ Watchlist</button>
       </div>
     </div>
 
-    <section class="hero no-hover">
+    <section class="hero">
       <div class="hero-head">
         <div class="stock-meta">
-          <h1 id="name">Loading...</h1>
+          <h1 id="stockName">Stock</h1>
           <div class="ticker-row">
             <span class="pill">Detailed View</span>
-            <span class="pill ticker" id="tickerText">-</span>
+            <span class="pill ticker" id="stockTicker">TICKER</span>
           </div>
-          <div class="live-price" id="price">--</div>
-          <div id="priceChangeBadge" class="price-badge">Loading...</div>
+          <div class="live-price" id="livePrice">Loading...</div>
+          <div class="price-badge" id="priceBadge">Checking...</div>
         </div>
 
         <div class="hero-side">
           <div class="side-card">
             <div class="side-label">Market Session</div>
-            <div class="side-value" id="sessionValue">Live Tracking</div>
+            <div class="side-value" id="marketSession">Checking...</div>
           </div>
         </div>
       </div>
@@ -586,381 +244,319 @@
     <section class="chart-card">
       <div class="chart-head">
         <div>
-          <h3>Intraday Price Movement</h3>
+          <h3>Intraday Candlestick Movement</h3>
+          <p>Candlestick chart with predicted price, MA20, MA50 and live OHLC data.</p>
         </div>
       </div>
-      <div class="chart-box">
-        <canvas id="stockChart"></canvas>
-      </div>
+      <div class="chart-box"><canvas id="stockChart"></canvas></div>
+      <div class="error-box" id="graphError"></div>
     </section>
 
-    <section class="hero">
+    <section>
       <div class="info-grid">
-        <div class="info-card">
-          <div class="info-label">Open</div>
-          <div class="info-value" id="openVal">--</div>
-          <div class="info-sub">Today's open price</div>
-        </div>
+        <div class="info-card"><div class="info-label">Open</div><div class="info-value" id="openVal">--</div><div class="info-sub">Today's open price</div></div>
+        <div class="info-card"><div class="info-label">High</div><div class="info-value" id="highVal">--</div><div class="info-sub">Today's high</div></div>
+        <div class="info-card"><div class="info-label">Low</div><div class="info-value" id="lowVal">--</div><div class="info-sub">Today's low</div></div>
+        <div class="info-card"><div class="info-label">Volume</div><div class="info-value" id="volumeVal">--</div><div class="info-sub">Today's volume</div></div>
+      </div>
 
-        <div class="info-card">
-          <div class="info-label">High</div>
-          <div class="info-value" id="highVal">--</div>
-          <div class="info-sub">Today's high</div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-label">Low</div>
-          <div class="info-value" id="lowVal">--</div>
-          <div class="info-sub">Today's low</div>
-        </div>
-
-        <div class="info-card">
-          <div class="info-label">Volume</div>
-          <div class="info-value" id="volumeVal">--</div>
-          <div class="info-sub">Today's volume</div>
-        </div>
+      <div class="indicator-grid">
+        <div class="info-card"><div class="info-label">RSI</div><div class="info-value" id="rsiVal">--</div><div class="info-sub">Momentum indicator</div></div>
+        <div class="info-card"><div class="info-label">MA20</div><div class="info-value" id="ma20Val">--</div><div class="info-sub">20 candle moving average</div></div>
+        <div class="info-card"><div class="info-label">MA50</div><div class="info-value" id="ma50Val">--</div><div class="info-sub">50 candle moving average</div></div>
       </div>
 
       <div class="prediction-grid">
-        <div class="prediction-card" id="cardDay">
-          <div class="prediction-title">1 Day Prediction</div>
-          <div class="prediction-value" id="predDay">Loading...</div>
-        </div>
-
-        <div class="prediction-card" id="cardWeek">
-          <div class="prediction-title">1 Week Prediction</div>
-          <div class="prediction-value" id="predWeek">Loading...</div>
-        </div>
-
-        <div class="prediction-card" id="cardMonth">
-          <div class="prediction-title">1 Month Prediction</div>
-          <div class="prediction-value" id="predMonth">Loading...</div>
-        </div>
+        <div class="prediction-card"><div class="prediction-title">1 Day Prediction</div><div class="prediction-value" id="oneDayPrediction">Loading...</div><div class="prediction-sub">LSTM daily forecast</div></div>
+        <div class="prediction-card"><div class="prediction-title">1 Week Prediction</div><div class="prediction-value" id="oneWeekPrediction">Loading...</div><div class="prediction-sub">7th future trading point</div></div>
+        <div class="prediction-card"><div class="prediction-title">1 Month Prediction</div><div class="prediction-value" id="oneMonthPrediction">Loading...</div><div class="prediction-sub">30th future trading point</div></div>
       </div>
-
     </section>
   </div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const symbol = params.get("s") || window.location.pathname.split("/").pop();
-    const stockName = params.get("name") || symbol;
-    const currency = symbol.includes(".NS") ? "₹" : "$";
-    let stockChart = null;
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const pathSymbol = decodeURIComponent(window.location.pathname.split('/').pop() || 'AAPL');
+  const symbol = params.get('s') || pathSymbol || 'AAPL';
+  const stockName = params.get('name') || symbol;
+  const currency = symbol.endsWith('.NS') ? '₹' : '$';
 
-    let predictionData = {
-      day: null,
-      week: null,
-      month: null
-    };
+  let stockChart = null;
+  let savedInWatchlist = false;
 
-    function goBack(){
-      window.location.href = "/dashboard";
-    }
-    function openWishlistPage(){
-  window.location.href = "/wishlist";
-}
+  document.getElementById('stockName').innerText = stockName;
+  document.getElementById('stockTicker').innerText = symbol;
 
-    function updateMarketStatus(){
-      const topStatus = document.getElementById("marketTopStatus");
-      const sessionValue = document.getElementById("sessionValue");
+  function goBack(){ window.location.href = '/dashboard'; }
 
-      const istTime = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
-      const day = istTime.getDay();
-      const hrs = istTime.getHours();
-      const mins = istTime.getMinutes();
+  function getCurrentUserId(){ return localStorage.getItem('currentUserId') || localStorage.getItem('user_id'); }
 
-      const marketOpen =
-        day !== 0 && day !== 6 &&
-        ((hrs > 9 || (hrs === 9 && mins >= 15)) &&
-        (hrs < 15 || (hrs === 15 && mins <= 30)));
-
-      if(marketOpen){
-        topStatus.innerHTML = '<span class="market-open-dot"></span>Market Open';
-        sessionValue.innerText = "Live Tracking";
-      }else{
-        topStatus.innerHTML = '<span class="market-open-dot" style="background:#ef4444; box-shadow:0 0 10px rgba(239,68,68,0.8);"></span>Market Closed';
-        sessionValue.innerText = "Closed Session";
-      }
-    }
-
-    function selectPrediction(type){
-      document.getElementById("cardDay").classList.remove("active");
-      document.getElementById("cardWeek").classList.remove("active");
-      document.getElementById("cardMonth").classList.remove("active");
-
-      if(type === "day"){
-        document.getElementById("cardDay").classList.add("active");
-      }
-
-      if(type === "week"){
-        document.getElementById("cardWeek").classList.add("active");
-      }
-
-      if(type === "month"){
-        document.getElementById("cardMonth").classList.add("active");
-      }
-    }
-
-    function setPredictionError(message){
-      predictionData.day = null;
-      predictionData.week = null;
-      predictionData.month = null;
-
-      document.getElementById("predDay").innerText = "N/A";
-      document.getElementById("predWeek").innerText = "N/A";
-      document.getElementById("predMonth").innerText = "N/A";
-
-    }
-
-    async function loadPrediction(){
-      try{
-        document.getElementById("predDay").innerText = "Loading...";
-        document.getElementById("predWeek").innerText = "Loading...";
-        document.getElementById("predMonth").innerText = "Loading...";
-
-        const res = await fetch(`/get_prediction/${encodeURIComponent(symbol)}`);
-        const data = await res.json();
-
-        console.log("Prediction API response:", data);
-
-        if(!res.ok || !data.success){
-          setPredictionError(data.message || "Prediction unavailable");
-          return;
-        }
-
-        predictionData.day = data.next_day;
-        predictionData.week = data.week;
-        predictionData.month = data.month;
-
-        document.getElementById("predDay").innerText = `${currency}${data.next_day}`;
-        document.getElementById("predWeek").innerText = `${currency}${data.week}`;
-        document.getElementById("predMonth").innerText = `${currency}${data.month}`;
-
-      }catch(err){
-        console.log("Prediction error:", err);
-        setPredictionError("Backend se prediction nahi aa raha. Server console check karo.");
-      }
-    }
-
-    function loadPrice(){
-      fetch(`/get_price/${encodeURIComponent(symbol)}`)
-        .then(res => res.json())
-        .then(data => {
-          document.getElementById("name").innerText = stockName;
-          document.getElementById("tickerText").innerText = symbol;
-          document.getElementById("price").innerText = `${currency}${Number(data.price).toFixed(2)}`;
-
-          const isUp = Number(data.change) >= 0;
-          const badge = document.getElementById("priceChangeBadge");
-          badge.className = `price-badge ${isUp ? "up" : "down"}`;
-          badge.innerText = `${isUp ? "▲" : "▼"} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)`;
-        })
-        .catch(err => console.log("Price error:", err));
-    }
-
-async function loadGraph(){
-  try{
-    const graphRes = await fetch(`/get_graph/${encodeURIComponent(symbol)}`);
-    const d = await graphRes.json();
-    if(d.error) return;
-
-    const predRes = await fetch(`/get_intraday_prediction/${encodeURIComponent(symbol)}`);
-    const pred = await predRes.json();
-
-    document.getElementById("openVal").innerText = `${currency}${d.open}`;
-    document.getElementById("highVal").innerText = `${currency}${d.high}`;
-    document.getElementById("lowVal").innerText = `${currency}${d.low}`;
-    document.getElementById("volumeVal").innerText = Number(d.volume).toLocaleString();
-
-    const ctx = document.getElementById("stockChart").getContext("2d");
-    if(stockChart) stockChart.destroy();
-
-    const actualTimes = d.times || [];
-    const actualPrices = d.prices || [];
-
-    const predictionTimes = pred.times || [];
-    const predictionPrices = pred.prices || [];
-
-    const allLabels = [...new Set([...actualTimes, ...predictionTimes])];
-
-    const actualData = allLabels.map(time => {
-      const index = actualTimes.indexOf(time);
-      return index !== -1 ? actualPrices[index] : null;
-    });
-
-    const predictedData = allLabels.map(time => {
-      const index = predictionTimes.indexOf(time);
-      return index !== -1 ? predictionPrices[index] : null;
-    });
-
-    const gradient = ctx.createLinearGradient(0, 0, 0, 420);
-    gradient.addColorStop(0, "rgba(34,197,94,0.22)");
-    gradient.addColorStop(1, "rgba(34,197,94,0.03)");
-
-    stockChart = new Chart(ctx, {
-      type: "line",
-      data: {
-        labels: allLabels,
-        datasets: [
-          {
-            label: "Actual Price",
-            data: actualData,
-            borderColor: "#22c55e",
-            backgroundColor: gradient,
-            fill: true,
-            tension: 0.38,
-            borderWidth: 3,
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            hitRadius: 18
-          },
-          {
-            label: "Predicted Price",
-            data: predictedData,
-            borderColor: "#38bdf8",
-            fill: false,
-            tension: 0.42,
-            borderWidth: 3,
-            borderDash: [7, 7],
-            pointRadius: 0,
-            pointHoverRadius: 5,
-            hitRadius: 18
-          }
-        ]
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-          mode: "index",
-          intersect: false
-        },
-        plugins: {
-          legend: {
-            display: true,
-            labels: {
-              color: "#dbeafe",
-              usePointStyle: true
-            }
-          },
-          tooltip: {
-            backgroundColor: "rgba(8,16,29,0.96)",
-            borderColor: "rgba(148,163,184,0.16)",
-            borderWidth: 1,
-            titleColor: "#ffffff",
-            bodyColor: "#dbeafe",
-            padding: 12,
-            callbacks: {
-              label: function(context){
-                if(context.raw === null) return "";
-                return `${context.dataset.label}: ${currency}${Number(context.raw).toFixed(2)}`;
-              }
-            }
-          }
-        },
-        scales: {
-          x: {
-            grid: {
-              drawBorder: false,
-              color: function(context){
-                return context.index % 6 === 0
-                  ? "rgba(148,163,184,0.08)"
-                  : "transparent";
-              }
-            },
-            ticks: {
-              color: "#8fa3bf",
-              autoSkip: false,
-              maxRotation: 0,
-              minRotation: 0,
-              callback: function(value, index){
-                return index % 6 === 0 ? this.getLabelForValue(value) : "";
-              }
-            }
-          },
-          y: {
-            grid: {
-              drawBorder: false,
-              color: "rgba(148,163,184,0.05)"
-            },
-            ticks: {
-              color: "#8fa3bf",
-              maxTicksLimit: 5,
-              callback: function(value){
-                return currency + Number(value).toFixed(0);
-              }
-            }
-          }
-        }
-      }
-    });
-
-  }catch(err){
-    console.log("Graph fetch error:", err);
+  function toChartTime(timeStr){
+    const now = new Date();
+    const [h, m] = timeStr.split(':').map(Number);
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m).getTime();
   }
-}
-    function getCurrentUserId(){
-      return localStorage.getItem("currentUserId");
-    }
 
-    async function isInWatchlist(){
-      const userId = getCurrentUserId();
-      if(!userId) return false;
+  function formatMoney(value){
+    if(value === null || value === undefined || Number.isNaN(Number(value))) return '--';
+    return currency + Number(value).toFixed(2);
+  }
 
-      try{
-        const res = await fetch("/watchlist/check", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ user_id: userId, symbol: symbol })
-        });
-        const data = await res.json();
-        return !!data.saved;
-      }catch(err){
-        return false;
-      }
-    }
+  function updateMarketStatus(){
+    const now = new Date();
+    const minutes = now.getHours() * 60 + now.getMinutes();
+    const isIndian = symbol.endsWith('.NS');
+    const open = isIndian ? 9 * 60 + 15 : 9 * 60 + 30;
+    const close = isIndian ? 15 * 60 + 30 : 16 * 60;
+    const day = now.getDay();
+    const isWeekday = day >= 1 && day <= 5;
+    const isOpen = isWeekday && minutes >= open && minutes <= close;
+    const text = isOpen ? 'Open Session' : 'Closed Session';
+    const dot = isOpen ? 'market-open-dot' : 'market-closed-dot';
+    document.getElementById('marketSession').innerText = text;
+    document.getElementById('marketTopStatus').innerHTML = `<span class="${dot}"></span>${isOpen ? 'Market Open' : 'Market Closed'}`;
+  }
 
-    async function updateWatchlistBtn(){
-      document.getElementById("watchlistTopBtn").innerHTML = "❤ Watchlist";
-    }
+  async function loadPrice(){
+    try{
+      const res = await fetch(`/get_price/${encodeURIComponent(symbol)}`);
+      const data = await res.json();
+      if(data.error) return;
+      document.getElementById('livePrice').innerText = formatMoney(data.price);
+      const badge = document.getElementById('priceBadge');
+      const up = Number(data.change) >= 0;
+      badge.className = 'price-badge ' + (up ? 'up' : 'down');
+      badge.innerText = `${up ? '▲' : '▼'} ${Math.abs(Number(data.change)).toFixed(2)} (${Math.abs(Number(data.percent)).toFixed(2)}%)`;
+    }catch(err){ console.log('Price error:', err); }
+  }
 
-    async function toggleWatchlist(){
-      const userId = getCurrentUserId();
-
-      if(!userId){
-        alert("Please login first");
+  async function loadPredictions(){
+    try{
+      const res = await fetch(`/get_prediction/${encodeURIComponent(symbol)}`);
+      const data = await res.json();
+      if(!data.success){
+        document.getElementById('oneDayPrediction').innerText = '--';
+        document.getElementById('oneWeekPrediction').innerText = '--';
+        document.getElementById('oneMonthPrediction').innerText = '--';
         return;
       }
+      document.getElementById('oneDayPrediction').innerText = formatMoney(data.next_day);
+      document.getElementById('oneWeekPrediction').innerText = formatMoney(data.week);
+      document.getElementById('oneMonthPrediction').innerText = formatMoney(data.month);
+    }catch(err){ console.log('Prediction error:', err); }
+  }
 
-      const saved = await isInWatchlist();
+  async function loadGraph(){
+    const errorBox = document.getElementById('graphError');
+    errorBox.style.display = 'none';
+    errorBox.innerText = '';
 
-      if(saved){
-        await fetch("/watchlist/remove", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ user_id: userId, symbol: symbol })
-        });
-      } else {
-        await fetch("/watchlist/add", {
-          method: "POST",
-          headers: {"Content-Type": "application/json"},
-          body: JSON.stringify({ user_id: userId, name: stockName || symbol, symbol: symbol })
-        });
-      }
+    try{
+      const graphRes = await fetch(`/get_graph/${encodeURIComponent(symbol)}`);
+      const d = await graphRes.json();
+      if(d.error){ throw new Error(d.error); }
 
-      updateWatchlistBtn();
+      const predRes = await fetch(`/get_intraday_prediction/${encodeURIComponent(symbol)}`);
+      const pred = await predRes.json();
+
+      document.getElementById('openVal').innerText = formatMoney(d.day_open);
+      document.getElementById('highVal').innerText = formatMoney(d.day_high);
+      document.getElementById('lowVal').innerText = formatMoney(d.day_low);
+      document.getElementById('volumeVal').innerText = Number(d.volume || 0).toLocaleString();
+
+      const lastRsi = [...(d.rsi || [])].reverse().find(v => v !== null && v !== undefined);
+      const lastMa20 = [...(d.ma20 || [])].reverse().find(v => v !== null && v !== undefined);
+      const lastMa50 = [...(d.ma50 || [])].reverse().find(v => v !== null && v !== undefined);
+      document.getElementById('rsiVal').innerText = lastRsi ? Number(lastRsi).toFixed(2) : '--';
+      document.getElementById('ma20Val').innerText = formatMoney(lastMa20);
+      document.getElementById('ma50Val').innerText = formatMoney(lastMa50);
+
+      const candleData = d.times.map((t, i) => ({
+        x: toChartTime(t),
+        o: d.open[i],
+        h: d.high[i],
+        l: d.low[i],
+        c: d.close[i]
+      })).filter(item => item.o !== null && item.h !== null && item.l !== null && item.c !== null);
+
+      const ma20Data = d.times.map((t, i) => ({ x: toChartTime(t), y: d.ma20 ? d.ma20[i] : null })).filter(p => p.y !== null && p.y !== undefined);
+      const ma50Data = d.times.map((t, i) => ({ x: toChartTime(t), y: d.ma50 ? d.ma50[i] : null })).filter(p => p.y !== null && p.y !== undefined);
+
+      const predictedData = (pred.times || []).map((t, i) => ({
+        x: toChartTime(t),
+        y: pred.prices ? pred.prices[i] : null
+      })).filter(p => p.y !== null && p.y !== undefined);
+
+      const ctx = document.getElementById('stockChart').getContext('2d');
+      if(stockChart) stockChart.destroy();
+
+      stockChart = new Chart(ctx, {
+        data: {
+          datasets: [
+            {
+              type: 'candlestick',
+              label: 'Actual OHLC',
+              data: candleData,
+              color: {
+                up: 'rgba(34,197,94,1)',
+                down: 'rgba(239,68,68,1)',
+                unchanged: 'rgba(148,163,184,1)'
+              },
+              borderColor: 'rgba(226,232,240,0.95)'
+            },
+
+            {
+              type: 'line',
+              label: 'Price Line',
+              data: d.times.map((t, i) => ({
+                x: toChartTime(t),
+                y: d.close ? d.close[i] : null
+              })).filter(p => p.y !== null && p.y !== undefined),
+              borderColor: '#22c55e',
+              borderWidth: 2,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              tension: 0.38,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'Predicted Price',
+              data: predictedData,
+              borderColor: '#38bdf8',
+              borderWidth: 2,
+              borderDash: [7, 7],
+              pointRadius: 0,
+              pointHoverRadius: 5,
+              tension: 0.35,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'MA20',
+              data: ma20Data,
+              borderColor: '#facc15',
+              borderWidth: 1.8,
+              pointRadius: 0,
+              tension: 0.25,
+              yAxisID: 'y'
+            },
+            {
+              type: 'line',
+              label: 'MA50',
+              data: ma50Data,
+              borderColor: '#a78bfa',
+              borderWidth: 1.8,
+              pointRadius: 0,
+              tension: 0.25,
+              yAxisID: 'y'
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          parsing: false,
+          interaction: { mode: 'nearest', intersect: false },
+          plugins: {
+            legend: { display: true, labels: { color: '#dbeafe', usePointStyle: true, boxWidth: 10 } },
+            tooltip: {
+              backgroundColor: 'rgba(8,16,29,0.96)',
+              borderColor: 'rgba(148,163,184,0.16)',
+              borderWidth: 1,
+              titleColor: '#ffffff',
+              bodyColor: '#dbeafe',
+              padding: 12,
+              callbacks: {
+                label: function(context){
+                  const raw = context.raw;
+                  if(context.dataset.type === 'candlestick' || raw.o !== undefined){
+                    return `O: ${formatMoney(raw.o)} H: ${formatMoney(raw.h)} L: ${formatMoney(raw.l)} C: ${formatMoney(raw.c)}`;
+                  }
+                  return `${context.dataset.label}: ${formatMoney(raw.y)}`;
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              type: 'time',
+              time: { unit: 'hour', displayFormats: { hour: 'HH:mm' } },
+              grid: { drawBorder: false, color: 'rgba(148,163,184,0.06)' },
+              ticks: { color: '#8fa3bf', maxRotation: 0, autoSkip: true, maxTicksLimit: 8 }
+            },
+            y: {
+              grid: { drawBorder: false, color: 'rgba(148,163,184,0.06)' },
+              ticks: { color: '#8fa3bf', callback: value => currency + Number(value).toFixed(0) }
+            }
+          }
+        }
+      });
+    }catch(err){
+      console.log('Graph error:', err);
+      errorBox.style.display = 'block';
+      errorBox.innerText = 'Graph load nahi hua: ' + err.message;
     }
+  }
 
-    updateMarketStatus();
-    updateWatchlistBtn();
-    loadGraph();
-    loadPrice();
-    loadPrediction();
+  async function checkWatchlist(){
+    const userId = getCurrentUserId();
+    if(!userId) return;
+    try{
+      const res = await fetch('/watchlist/check', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, symbol })
+      });
+      const data = await res.json();
+      savedInWatchlist = !!data.saved;
+      document.getElementById('watchlistBtn').innerText = savedInWatchlist ? '♥ Saved' : '♡ Watchlist';
+    }catch(err){ console.log('Watchlist check error:', err); }
+  }
 
-    setInterval(loadPrice, 5000);
-    setInterval(loadGraph, 300000);
-    setInterval(updateMarketStatus, 30000);
-  </script>
+  async function toggleStockWatchlist(){
+    const userId = getCurrentUserId();
+    if(!userId){ alert('Please login first'); return; }
+    const endpoint = savedInWatchlist ? '/watchlist/remove' : '/watchlist/add';
+    const payload = savedInWatchlist ? { user_id: userId, symbol } : { user_id: userId, symbol, name: stockName };
+    try{
+      await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      savedInWatchlist = !savedInWatchlist;
+      document.getElementById('watchlistBtn').innerText = savedInWatchlist ? '♥ Saved' : '♡ Watchlist';
+    }catch(err){ console.log('Watchlist toggle error:', err); }
+  }
+
+
+
+  function setupPremiumHover(){
+    document.querySelectorAll('.hero,.chart-card,.info-card,.prediction-card,.side-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        card.style.setProperty('--mx', `${(x / rect.width) * 100}%`);
+        card.style.setProperty('--my', `${(y / rect.height) * 100}%`);
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.setProperty('--mx', '72%');
+        card.style.setProperty('--my', '30%');
+      });
+    });
+  }
+
+  updateMarketStatus();
+  loadPrice();
+  loadPredictions();
+  loadGraph();
+  checkWatchlist();
+  setupPremiumHover();
+
+  setInterval(loadPrice, 30000);
+  setInterval(updateMarketStatus, 60000);
+</script>
 </body>
 </html>
