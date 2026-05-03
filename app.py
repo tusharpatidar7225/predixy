@@ -147,7 +147,6 @@ def login():
     else:
         return jsonify({"message": "Invalid email or password"}), 401
 
-
 @app.route("/get_graph/<symbol>")
 def get_graph(symbol):
     try:
@@ -157,12 +156,28 @@ def get_graph(symbol):
         if hist.empty:
             return jsonify({"error": "No intraday data found"}), 400
 
+        hist = hist.dropna()
+
         times = []
         prices = []
+        opens = []
+        highs = []
+        lows = []
+        closes = []
 
         for index, row in hist.iterrows():
             times.append(index.strftime("%H:%M"))
-            prices.append(round(float(row["Close"]), 2))
+
+            o = round(float(row["Open"]), 2)
+            h = round(float(row["High"]), 2)
+            l = round(float(row["Low"]), 2)
+            c = round(float(row["Close"]), 2)
+
+            opens.append(o)
+            highs.append(h)
+            lows.append(l)
+            closes.append(c)
+            prices.append(c)
 
         day_open = float(hist["Open"].iloc[0])
         day_high = float(hist["High"].max())
@@ -171,16 +186,25 @@ def get_graph(symbol):
 
         return jsonify({
             "times": times,
+
+            # line graph ke liye
             "prices": prices,
-            "open": round(day_open, 2),
-            "high": round(day_high, 2),
-            "low": round(day_low, 2),
+
+            # candlestick ke liye arrays
+            "open": opens,
+            "high": highs,
+            "low": lows,
+            "close": closes,
+
+            # info cards ke liye
+            "day_open": round(day_open, 2),
+            "day_high": round(day_high, 2),
+            "day_low": round(day_low, 2),
             "volume": volume
         })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
 
 @app.route("/get_prediction/<symbol>")
 def get_prediction(symbol):
